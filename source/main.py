@@ -13,7 +13,7 @@ from misc_functions import get_distance, in_bounds
 # Define working directory
 DIR_PATH = Path.cwd().parent
 # Modify DIR_PATH if game is being run from executable
-if DIR_PATH.parent.name == "dist":
+if DIR_PATH.name == "dist":
     DIR_PATH = Path.cwd().parent.parent
 
 # Define colors

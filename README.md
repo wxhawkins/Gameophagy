@@ -4,7 +4,7 @@ It's a game...about autophagy. Try to catch all of the intracellular cargo in th
 
 ## Getting started
 
-**If you're on Windows**, you can simply download the stand-alone release. Go to Gameophagy releases and download the most recent release, unzip the files and find the file "main.exe" in "Gamophagy/dist/main/main.exe". Create a shortcut to this file, place it wherever you want and use it to launch the game -- done.
+**If you're on Windows**, you can simply download the stand-alone release. Go to Gameophagy releases and download the most recent version, unzip the files launch "Gameophagy.cmd".
 
 Otherwise, clone/download the repository. You will need a recent version of python (3.8 used for development) and the package pygame (1.9.6 used for development). Begin the game by running "main.py".
 
