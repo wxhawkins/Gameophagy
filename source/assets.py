@@ -8,7 +8,7 @@ import pygame as pg
 from misc_functions import get_distance, in_bounds
 
 # Define working directory
-DIR_PATH = Path.cwd()
+DIR_PATH = Path.cwd().parent
 # Modify DIR_PATH if game is being run from executable
 if DIR_PATH.parent.name == "dist":
     DIR_PATH = Path.cwd().parent.parent
@@ -187,9 +187,8 @@ class Button:
         # Handle toggle buttons
         if self.toggle:
             if clicked:
-                self.active = not self.active
-                if self.active:
-                    glob_diff = self.text
+                self.active = True
+                glob_diff = self.text
         # Handle non-toggle buttons
         else:
             if clicked:            
