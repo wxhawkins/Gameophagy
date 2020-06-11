@@ -1,0 +1,2 @@
+Increase ribo score to above AP formation penalty
+Add loading message to Gameophagy.cmd
