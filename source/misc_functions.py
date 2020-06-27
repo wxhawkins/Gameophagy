@@ -1,6 +1,7 @@
 WIDTH = 0
 HEIGHT = 0
 MOD = 1
+DIFFICULTY = None
 
 def get_distance(xy1, xy2):
     '''
@@ -35,18 +36,21 @@ def in_bounds(screen_width, screen_height, item, buffer=0):
     return True
 
 
-def set_res(width, height, mod):
-    global WIDTH
-    global HEIGHT
-    global MOD
-
-    WIDTH = width
-    HEIGHT = height
-    MOD = mod
-
 def mod(*args):
     results = list()
     for val in args:
         results.append(round(val * MOD))
     
     return results[0] if len(results) == 1 else tuple(results)
+
+
+def set_globs(w=None, h=None, m=None, d=None):
+    global WIDTH
+    global HEIGHT
+    global MOD
+    global DIFFICULTY
+
+    WIDTH = WIDTH if w is None else w
+    HEIGHT = HEIGHT if h is None else h
+    MOD = MOD if m is None else m
+    DIFFICULTY = DIFFICULTY if d is None else d

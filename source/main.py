@@ -9,8 +9,6 @@ from pygame.locals import *
 
 
 # Import personal files
-import assets
-from assets import Autophagosome, Cargo, Button
 import misc_functions
 from misc_functions import get_distance, in_bounds, mod
 
@@ -25,12 +23,12 @@ WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
 HEIGHT = round(WIDTH * (9/16))
 MOD = round(WIDTH / 1920, 3)
 
-assets.set_res(WIDTH, HEIGHT, MOD)
-misc_functions.set_res(WIDTH, HEIGHT, MOD)
+misc_functions.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 
-print(f"{WIDTH = }")
-print(f"{HEIGHT = }")
-print(f"{MOD = }")
+import assets
+from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill
+
+assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 
 # Define colors
 GRAY = (80, 80, 80)
@@ -220,26 +218,26 @@ def exit_check(event):
 
 def spawn_cargo():
     """ Add cargo to game. """
-
+    
     # Initalize sprite groups
     all_cargo = pg.sprite.Group()
     good_cargo = pg.sprite.Group()
 
     # Generate mitochondria
     for _ in range(MITO_NUM):
-        _mito = Cargo(DIFFICULTY, "mito.png", x_dim=mod(300), y_dim=mod(165), score_val=100, x_speed_cap=7, y_speed_cap=7)
+        _mito = Mitochondrion()
         all_cargo.add(_mito)
         good_cargo.add(_mito)
 
-    # Generate ribosomes
+    # # Generate ribosomes
     for _ in range(RIBO_NUM):
-        _ribo = Cargo(DIFFICULTY, "ribo.png", x_dim=mod(90), y_dim=mod(90), score_val=50, x_speed_cap=15, y_speed_cap=15)
+        _ribo = Ribosome()
         all_cargo.add(_ribo)
         good_cargo.add(_ribo)
 
-    # Generate RNAs
+    # # Generate RNAs
     for _ in range(RNA_NUM):
-        _rna = Cargo(DIFFICULTY, "rna.png", x_dim=mod(75), y_dim=mod(300), score_val=150, x_speed_cap=2, y_speed_cap=12)
+        _rna = RNA()
         all_cargo.add(_rna)
         good_cargo.add(_rna)
 
@@ -248,6 +246,8 @@ def spawn_cargo():
 
 def game_loop():
     """ Initialize and run game loop. """
+
+    assets.set_globs(d=DIFFICULTY)
 
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))
@@ -317,7 +317,7 @@ def game_loop():
                     if len(phago_locs) > TIMEOUT_THRESH[DIFFICULTY]:
                         start_loc, phago_locs = None, None
                         timed_out = True
-                        _pill = Cargo(DIFFICULTY, "pill.png", x_dim=mod(150), y_dim=mod(75), score_val=TIMEOUT_PENALTY, x_speed_cap=2, y_speed_cap=2)
+                        _pill = Pill(score_val=TIMEOUT_PENALTY)
                         all_cargo.add(_pill)
                         SCREEN.fill(RED)
             # Mouse released
