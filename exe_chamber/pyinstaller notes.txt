@@ -1,0 +1,2 @@
+if "pkg_resources.py2_warn" error is encountered, try downgrading setuptools:
+pip install --upgrade setuptools==44.0.0

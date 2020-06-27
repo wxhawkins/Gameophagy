@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['main.py'],
-             pathex=['C:\\Users\\wxhaw\\OneDrive\\Desktop\\GitHub\\Gamophagy\\exe_chamber'],
+             pathex=['D:\Source\Gamophagy\exe_chamber\source'],
              binaries=[],
              datas=[],
              hiddenimports=[],

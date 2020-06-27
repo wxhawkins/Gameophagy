@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pygame as pg
 
-from misc_functions import get_distance, in_bounds
+from misc_functions import get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -16,8 +16,10 @@ if DIR_PATH.name == "dist":
 WHITE = (255, 255, 255)
 COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
-SCREENWIDTH = 1900
-SCREENHEIGHT = 1000
+WIDTH = 0
+HEIGHT = 0
+MOD = 1
+DIFFICULTY = None
 
 # Define difficulty scalars
 SPEED_SCALAR = {"Easy": 0.5, "Medium": 1.5, "Hard": 3}
@@ -63,9 +65,7 @@ class Autophagosome(pg.sprite.Sprite):
         self.contents = []
 
     def handle_event(self, event, prev_loc, cur_loc):
-        """
-            Respond to player mouse dragging by accelerating AP.
-        """
+        """ Respond to player mouse dragging by accelerating AP. """
         if pg.mouse.get_pressed()[0]:
             # See if click is within AP
             distance = get_distance(self.rect.center, cur_loc)
@@ -84,7 +84,7 @@ class Autophagosome(pg.sprite.Sprite):
             item.rect.move_ip(self.dx, self.dy)
 
         # Delete AP if off screen
-        if not in_bounds(self, buffer=100):
+        if not in_bounds(WIDTH, HEIGHT, self, buffer=100):
             self.kill()
     
     def draw(self, screen):
@@ -97,10 +97,8 @@ class Cargo(pg.sprite.Sprite):
         Intracellular entity that can become encapsulated by phagophore.
     """
 
-    def __init__(self, difficulty_, file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x=None, y=None, dx=None, dy=None):
+    def __init__(self, file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x=None, y=None, dx=None, dy=None):
         super().__init__()
-
-        self.difficuty = difficulty_
 
         # Esablish appearance
         self.image = pg.image.load(str(DIR_PATH / "images" / file_name)).convert()
@@ -111,11 +109,11 @@ class Cargo(pg.sprite.Sprite):
 
 
         # Initialize positions and velocites
-        adj_x_speed = round(x_speed_cap * SPEED_SCALAR[self.difficuty])
-        adj_y_speed = round(y_speed_cap * SPEED_SCALAR[self.difficuty])
+        adj_x_speed = round(x_speed_cap * SPEED_SCALAR[DIFFICULTY])
+        adj_y_speed = round(y_speed_cap * SPEED_SCALAR[DIFFICULTY])
 
-        self.rect.x = x if x is not None else random.randrange(0, SCREENWIDTH)
-        self.rect.y = y if y is not None else random.randrange(0, SCREENHEIGHT)
+        self.rect.x = x if x is not None else random.randrange(0, WIDTH)
+        self.rect.y = y if y is not None else random.randrange(0, HEIGHT)
         self.dx = dx if dx is not None else random.randrange(-adj_x_speed, adj_x_speed + 1)
         self.dy = dy if dy is not None else random.randrange(-adj_y_speed, adj_y_speed + 1)
 
@@ -123,7 +121,7 @@ class Cargo(pg.sprite.Sprite):
         self.dy_cap = adj_y_speed
 
         self.trapped = False
-        self.score_val = score_val * SCORE_SCALAR[self.difficuty]
+        self.score_val = score_val * SCORE_SCALAR[DIFFICULTY]
 
     def update(self):
         """ Update position and velocity. """
@@ -149,15 +147,86 @@ class Cargo(pg.sprite.Sprite):
             if self.rect.left < 0:
                 self.rect.left = 0
                 self.dx = -(self.dx)
-            if self.rect.right > SCREENWIDTH:
-                self.rect.right = SCREENWIDTH
+            if self.rect.right > WIDTH:
+                self.rect.right = WIDTH
                 self.dx = -(self.dx)
             if self.rect.top < 0:
                 self.rect.top = 0
                 self.dy = -(self.dy)
-            if self.rect.bottom > SCREENHEIGHT:
-                self.rect.bottom = SCREENHEIGHT
+            if self.rect.bottom > HEIGHT:
+                self.rect.bottom = HEIGHT
                 self.dy = -(self.dy)
+
+
+class Mitochondrion(Cargo):
+    def __init__(
+        self, 
+        file_name="mito.png", 
+        x_dim=mod(300), 
+        y_dim=mod(165), 
+        score_val=100, 
+        x_speed_cap=mod(7), 
+        y_speed_cap=mod(7), 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None
+    ):
+
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+
+class Ribosome(Cargo):
+    def __init__(
+        self, 
+        file_name="ribo.png", 
+        x_dim=mod(90), 
+        y_dim=mod(90), 
+        score_val=50, 
+        x_speed_cap=mod(15), 
+        y_speed_cap=mod(15), 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None
+    ):
+
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+
+
+class RNA(Cargo):
+    def __init__(
+        self, 
+        file_name="rna.png", 
+        x_dim=mod(75), 
+        y_dim=mod(300), 
+        score_val=150, 
+        x_speed_cap=mod(2), 
+        y_speed_cap=mod(12), 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None
+    ):
+
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+
+
+class Pill(Cargo):
+    def __init__(
+        self, 
+        file_name="pill.png", 
+        x_dim=mod(150), 
+        y_dim=mod(75), 
+        score_val=-300, 
+        x_speed_cap=mod(2), 
+        y_speed_cap=mod(2), 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None
+    ):
+
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
 
 
 class Button:
@@ -213,3 +282,14 @@ class Button:
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
         screen.blit(self.txt_surface, (text_x, text_y))
+
+def set_globs(w=None, h=None, m=None, d=None):
+    global WIDTH
+    global HEIGHT
+    global MOD
+    global DIFFICULTY
+
+    WIDTH = WIDTH if w is None else w
+    HEIGHT = HEIGHT if h is None else h
+    MOD = MOD if m is None else m
+    DIFFICULTY = DIFFICULTY if d is None else d
