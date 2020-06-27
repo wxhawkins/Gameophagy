@@ -1,3 +1,4 @@
+import ctypes
 import datetime
 import json
 import sys
@@ -6,15 +7,30 @@ from pathlib import Path
 import pygame as pg
 from pygame.locals import *
 
+
 # Import personal files
+import assets
 from assets import Autophagosome, Cargo, Button
-from misc_functions import get_distance, in_bounds
+import misc_functions
+from misc_functions import get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
 # Modify DIR_PATH if game is being run from executable
 if DIR_PATH.name == "dist":
     DIR_PATH = Path.cwd().parent.parent
+
+# Initialize variables for screen resolution
+WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
+HEIGHT = round(WIDTH * (9/16))
+MOD = round(WIDTH / 1920, 3)
+
+assets.set_res(WIDTH, HEIGHT, MOD)
+misc_functions.set_res(WIDTH, HEIGHT, MOD)
+
+print(f"{WIDTH = }")
+print(f"{HEIGHT = }")
+print(f"{MOD = }")
 
 # Define colors
 GRAY = (80, 80, 80)
@@ -23,8 +39,6 @@ BACKGROUND_BLUE = (144, 226, 222)
 PHAGO_GREEN_DARK =  (0, 138, 70)
 
 GAMETITLE = "Gameophagy"
-SCREENWIDTH = 1900
-SCREENHEIGHT = 1000
 HIT_CIRCLE_RADIUS = 100
 MITO_NUM = 5
 RIBO_NUM = 20
@@ -38,16 +52,17 @@ MIN_AREA = 20000
 # Define fonts
 pg.font.init()
 conthrax_path = str(DIR_PATH / "fonts" / "conthrax.ttf")
-FONT_1 = pg.font.Font(conthrax_path, 130)
-FONT_2 = pg.font.Font(conthrax_path, 80)
-FONT_3 = pg.font.Font(conthrax_path, 60)
-FONT_4 = pg.font.Font(conthrax_path, 30)
+FONT_1 = pg.font.Font(conthrax_path, mod(130))
+FONT_2 = pg.font.Font(conthrax_path, mod(80))
+FONT_3 = pg.font.Font(conthrax_path, mod(60))
+FONT_4 = pg.font.Font(conthrax_path, mod(30))
 
 # Initialize game
 pg.init()
 clock = pg.time.Clock()
 pg.display.set_caption(GAMETITLE)
-SCREEN = pg.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
+SCREEN = pg.display.set_mode((WIDTH, HEIGHT))
+SCREEN = pg.display.set_mode((0, 0), pg.FULLSCREEN, pg.RESIZABLE)
 DIFFICULTY = None
 
 
@@ -70,7 +85,7 @@ def purge_cargo(all_sprites_group):
 
     score_change = 0
     for sprite in all_sprites_group:
-        if not in_bounds(sprite):
+        if not in_bounds(WIDTH, HEIGHT, sprite):
             score_change += sprite.score_val
             sprite.kill()
 
@@ -90,20 +105,20 @@ def intro_screen():
 
     # Set up intro screen background
     into_bg = pg.image.load(str(DIR_PATH / "images" / "start_screen_basic.png")).convert()
-    into_bg = pg.transform.scale(into_bg, (SCREENWIDTH, SCREENHEIGHT))
+    into_bg = pg.transform.scale(into_bg, (WIDTH, HEIGHT))
     SCREEN.blit(into_bg, (0, 0))
 
     # Set up title
     title = FONT_1.render(GAMETITLE, True, GRAY)
-    SCREEN.blit(title, (40, 21))
+    SCREEN.blit(title, mod(40, 21))
 
     pg.display.update()
 
     # Initalize buttons
-    play_button = Button(1580, 150, 250, 105, FONT_3, "Play", callback_=game_loop)
-    easy_button = Button(1250, 70, 180, 60, FONT_4, "Easy", toggle_=True)
-    med_button = Button(1450, 70, 180, 60, FONT_4, "Medium", toggle_=True)
-    hard_button = Button(1650, 70, 180, 60, FONT_4, "Hard", toggle_=True)
+    play_button = Button(mod(1580), mod(150), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+    easy_button = Button(mod(1250), mod(70), mod(180), mod(60), FONT_4, "Easy", toggle_=True)
+    med_button = Button(mod(1450), mod(70), mod(180), mod(60), FONT_4, "Medium", toggle_=True)
+    hard_button = Button(mod(1650), mod(70), mod(180), mod(60), FONT_4, "Hard", toggle_=True)
     buttons = [play_button, easy_button, med_button, hard_button]
 
     # Initalize difficulty
@@ -158,12 +173,12 @@ def end_screen(score):
             out_file.write("[]")
         end_screen(score)
 
-    play_button = Button(1300, 20, 425, 80, FONT_3, "Play again", callback_=intro_screen)
+    play_button = Button(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
 
     # Show final score
     SCREEN.fill(BACKGROUND_BLUE)
     final_score_text = FONT_3.render(("Final Score: " + score), True, (0, 0, 0))
-    SCREEN.blit(final_score_text, (100, 20))
+    SCREEN.blit(final_score_text, mod(100, 20))
 
     # Sort high scores
     score_list = sorted(score_list, key=lambda x: x["score"], reverse=True)
@@ -173,9 +188,9 @@ def end_screen(score):
         core_text = FONT_3.render(line["score"], True, (0, 0, 0))
         diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
         date_text = FONT_3.render(line["date"], True, (0, 0, 0))
-        SCREEN.blit(core_text, (100, 150 + (i * 80)))
-        SCREEN.blit(diff_text, (700, 150 + (i * 80)))
-        SCREEN.blit(date_text, (1300, 150 + (i * 80)))
+        SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
+        SCREEN.blit(diff_text, mod(700, 150 + (i * 80)))
+        SCREEN.blit(date_text, mod(1300, 150 + (i * 80)))
 
     # End page loop
     while True:
@@ -212,19 +227,19 @@ def spawn_cargo():
 
     # Generate mitochondria
     for _ in range(MITO_NUM):
-        _mito = Cargo(DIFFICULTY, "mito.png", x_dim=300, y_dim=165, score_val=100, x_speed_cap=7, y_speed_cap=7)
+        _mito = Cargo(DIFFICULTY, "mito.png", x_dim=mod(300), y_dim=mod(165), score_val=100, x_speed_cap=7, y_speed_cap=7)
         all_cargo.add(_mito)
         good_cargo.add(_mito)
 
     # Generate ribosomes
     for _ in range(RIBO_NUM):
-        _ribo = Cargo(DIFFICULTY, "ribo.png", x_dim=90, y_dim=90, score_val=50, x_speed_cap=15, y_speed_cap=15)
+        _ribo = Cargo(DIFFICULTY, "ribo.png", x_dim=mod(90), y_dim=mod(90), score_val=50, x_speed_cap=15, y_speed_cap=15)
         all_cargo.add(_ribo)
         good_cargo.add(_ribo)
 
     # Generate RNAs
     for _ in range(RNA_NUM):
-        _rna = Cargo(DIFFICULTY, "rna.png", x_dim=75, y_dim=300, score_val=150, x_speed_cap=2, y_speed_cap=12)
+        _rna = Cargo(DIFFICULTY, "rna.png", x_dim=mod(75), y_dim=mod(300), score_val=150, x_speed_cap=2, y_speed_cap=12)
         all_cargo.add(_rna)
         good_cargo.add(_rna)
 
@@ -302,7 +317,7 @@ def game_loop():
                     if len(phago_locs) > TIMEOUT_THRESH[DIFFICULTY]:
                         start_loc, phago_locs = None, None
                         timed_out = True
-                        _pill = Cargo(DIFFICULTY, "pill.png", x_dim=(150), y_dim=(75), score_val=TIMEOUT_PENALTY, x_speed_cap=2, y_speed_cap=2)
+                        _pill = Cargo(DIFFICULTY, "pill.png", x_dim=mod(150), y_dim=mod(75), score_val=TIMEOUT_PENALTY, x_speed_cap=2, y_speed_cap=2)
                         all_cargo.add(_pill)
                         SCREEN.fill(RED)
             # Mouse released
@@ -331,21 +346,21 @@ def game_loop():
 
             # Draw big starting point
             if start_loc is not None:
-                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, 100)
+                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
 
             # Draw phagophore
             if phago_locs is not None:
                 if len(phago_locs) > 2:
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, 23)
+                        pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
                         last_loc = loc
 
         prev_loc = cur_loc
 
         # Display score
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
-        SCREEN.blit(score_text, (15, 0))
+        SCREEN.blit(score_text, mod(15, 0))
 
         # Check for end of game
         if len(good_cargo) < 1:
@@ -357,7 +372,6 @@ def game_loop():
 
         # Set number of frames per second
         clock.tick(60)
-
 
 intro_screen()
 pg.quit()

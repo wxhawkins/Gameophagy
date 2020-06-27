@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pygame as pg
 
-from misc_functions import get_distance, in_bounds
+from misc_functions import get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -16,8 +16,9 @@ if DIR_PATH.name == "dist":
 WHITE = (255, 255, 255)
 COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
-SCREENWIDTH = 1900
-SCREENHEIGHT = 1000
+WIDTH = 0
+HEIGHT = 0
+MOD = 1
 
 # Define difficulty scalars
 SPEED_SCALAR = {"Easy": 0.5, "Medium": 1.5, "Hard": 3}
@@ -84,7 +85,7 @@ class Autophagosome(pg.sprite.Sprite):
             item.rect.move_ip(self.dx, self.dy)
 
         # Delete AP if off screen
-        if not in_bounds(self, buffer=100):
+        if not in_bounds(WIDTH, HEIGHT, self, buffer=100):
             self.kill()
     
     def draw(self, screen):
@@ -114,8 +115,8 @@ class Cargo(pg.sprite.Sprite):
         adj_x_speed = round(x_speed_cap * SPEED_SCALAR[self.difficuty])
         adj_y_speed = round(y_speed_cap * SPEED_SCALAR[self.difficuty])
 
-        self.rect.x = x if x is not None else random.randrange(0, SCREENWIDTH)
-        self.rect.y = y if y is not None else random.randrange(0, SCREENHEIGHT)
+        self.rect.x = x if x is not None else random.randrange(0, WIDTH)
+        self.rect.y = y if y is not None else random.randrange(0, HEIGHT)
         self.dx = dx if dx is not None else random.randrange(-adj_x_speed, adj_x_speed + 1)
         self.dy = dy if dy is not None else random.randrange(-adj_y_speed, adj_y_speed + 1)
 
@@ -149,14 +150,14 @@ class Cargo(pg.sprite.Sprite):
             if self.rect.left < 0:
                 self.rect.left = 0
                 self.dx = -(self.dx)
-            if self.rect.right > SCREENWIDTH:
-                self.rect.right = SCREENWIDTH
+            if self.rect.right > WIDTH:
+                self.rect.right = WIDTH
                 self.dx = -(self.dx)
             if self.rect.top < 0:
                 self.rect.top = 0
                 self.dy = -(self.dy)
-            if self.rect.bottom > SCREENHEIGHT:
-                self.rect.bottom = SCREENHEIGHT
+            if self.rect.bottom > HEIGHT:
+                self.rect.bottom = HEIGHT
                 self.dy = -(self.dy)
 
 
@@ -213,3 +214,12 @@ class Button:
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
         screen.blit(self.txt_surface, (text_x, text_y))
+
+def set_res(width, height, mod):
+    global WIDTH
+    global HEIGHT
+    global MOD
+
+    WIDTH = width
+    HEIGHT = height
+    MOD = mod
