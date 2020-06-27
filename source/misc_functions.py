@@ -4,9 +4,7 @@ MOD = 1
 DIFFICULTY = None
 
 def get_distance(xy1, xy2):
-    '''
-        Calculate euclidean distance.
-    '''
+    """ Calculate euclidean distance. """
 
     x1 = xy1[0]
     y1 = xy1[1]
@@ -21,9 +19,7 @@ def get_distance(xy1, xy2):
 
 
 def in_bounds(screen_width, screen_height, item, buffer=0):
-    '''
-        Check if given item is within bounds of the screen.
-    '''
+    """ Check if given item is within bounds of the screen. """
 
     if any((
                 item.rect.right < (0 - buffer),
@@ -37,6 +33,7 @@ def in_bounds(screen_width, screen_height, item, buffer=0):
 
 
 def mod(*args):
+    """ Modifies values based on screen resolution. """
     results = list()
     for val in args:
         results.append(round(val * MOD))

@@ -37,7 +37,7 @@ BACKGROUND_BLUE = (144, 226, 222)
 PHAGO_GREEN_DARK =  (0, 138, 70)
 
 GAMETITLE = "Gameophagy"
-HIT_CIRCLE_RADIUS = 100
+HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
 RIBO_NUM = 20
 RNA_NUM = 10
@@ -45,7 +45,8 @@ TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
 MAKE_PENALTY = 200
-MIN_AREA = 20000
+MIN_AREA = mod(20000)
+DIFFICULTY = None
 
 # Define fonts
 pg.font.init()
@@ -60,8 +61,10 @@ pg.init()
 clock = pg.time.Clock()
 pg.display.set_caption(GAMETITLE)
 SCREEN = pg.display.set_mode((WIDTH, HEIGHT))
-SCREEN = pg.display.set_mode((0, 0), pg.FULLSCREEN, pg.RESIZABLE)
-DIFFICULTY = None
+try:
+    SCREEN = pg.display.set_mode((0, 0), pg.FULLSCREEN)
+except pg.error: # Error sometimes encountered with 4K displays
+    SCREEN = pg.display.set_mode((WIDTH, HEIGHT))
 
 
 def check_trapped(APs, items):

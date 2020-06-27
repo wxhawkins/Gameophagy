@@ -65,9 +65,7 @@ class Autophagosome(pg.sprite.Sprite):
         self.contents = []
 
     def handle_event(self, event, prev_loc, cur_loc):
-        """
-            Respond to player mouse dragging by accelerating AP.
-        """
+        """ Respond to player mouse dragging by accelerating AP. """
         if pg.mouse.get_pressed()[0]:
             # See if click is within AP
             distance = get_distance(self.rect.center, cur_loc)
