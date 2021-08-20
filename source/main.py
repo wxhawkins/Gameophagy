@@ -41,6 +41,9 @@ HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
 RIBO_NUM = 20
 RNA_NUM = 10
+# MITO_NUM = 1
+# RIBO_NUM = 0
+# RNA_NUM = 0
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
@@ -342,14 +345,9 @@ def game_loop():
                             
                             # Freeze cargo within phagophore
                             check_trapped(APs, all_cargo)
-                        
 
                     start_loc, phago_locs = None, None
                     mouse_pressed = False
-
-            # Draw big starting point
-            if start_loc is not None:
-                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
 
             # Draw phagophore
             if phago_locs is not None:
@@ -357,7 +355,15 @@ def game_loop():
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
                         pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
+                        pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, (last_loc[0]+1, last_loc[1]+1), mod(9))
                         last_loc = loc
+
+            # Draw PAS
+            if start_loc is not None:
+                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
+                score_text = FONT_4.render(("PAS"), True, (0, 0, 0))
+                text_x, text_y = start_loc
+                SCREEN.blit(score_text, (text_x-32, text_y-25))
 
         prev_loc = cur_loc
 

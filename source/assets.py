@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 
 import pygame as pg
+from pygame import transform
 
 from misc_functions import get_distance, in_bounds, mod
 
@@ -14,6 +15,7 @@ if DIR_PATH.name == "dist":
     DIR_PATH = Path.cwd().parent.parent
 
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
 WIDTH = 0
@@ -22,7 +24,7 @@ MOD = 1
 DIFFICULTY = None
 
 # Define difficulty scalars
-SPEED_SCALAR = {"Easy": 0.5, "Medium": 1.5, "Hard": 3}
+SPEED_SCALAR = {"Easy": 0.5, "Medium": 1, "Hard": 1.7}
 SCORE_SCALAR = {"Easy": 1, "Medium": 2, "Hard": 3}
 
 
@@ -66,6 +68,7 @@ class Autophagosome(pg.sprite.Sprite):
 
     def handle_event(self, event, prev_loc, cur_loc):
         """ Respond to player mouse dragging by accelerating AP. """
+
         if pg.mouse.get_pressed()[0]:
             # See if click is within AP
             distance = get_distance(self.rect.center, cur_loc)
@@ -101,16 +104,21 @@ class Cargo(pg.sprite.Sprite):
         super().__init__()
 
         # Esablish appearance
-        self.image = pg.image.load(str(DIR_PATH / "images" / file_name)).convert()
+        self.image = pg.image.load(str(DIR_PATH / "images" / file_name)).convert_alpha()
         self.image = pg.transform.scale(self.image, (round(x_dim), round(y_dim)))
 
         self.image.set_colorkey(WHITE)
+        self.image_static = self.image
         self.rect = self.image.get_rect()
 
-
         # Initialize positions and velocites
-        adj_x_speed = round(x_speed_cap * SPEED_SCALAR[DIFFICULTY])
-        adj_y_speed = round(y_speed_cap * SPEED_SCALAR[DIFFICULTY])
+        adj_x_speed, adj_y_speed = 0, 0
+        while 0 in [adj_x_speed, adj_y_speed]:
+            adj_x_speed = round(x_speed_cap * SPEED_SCALAR[DIFFICULTY])
+            adj_y_speed = round(y_speed_cap * SPEED_SCALAR[DIFFICULTY])
+
+        self.angle_rate=random.randrange(-5, 5)
+        self.angle = random.randrange(0, 360)
 
         self.rect.x = x if x is not None else random.randrange(0, WIDTH)
         self.rect.y = y if y is not None else random.randrange(0, HEIGHT)
@@ -123,12 +131,22 @@ class Cargo(pg.sprite.Sprite):
         self.trapped = False
         self.score_val = score_val * SCORE_SCALAR[DIFFICULTY]
 
+
+    def rotate(self, old_rect):
+        """ Rotate cargo by angle stored in self.angle. """
+
+        rotated_surface = transform.rotozoom(self.image_static, self.angle, 1)
+        rotated_surface.set_colorkey(BLACK)
+        rotated_rect = rotated_surface.get_rect()
+        return rotated_surface, rotated_rect
+
+
     def update(self):
         """ Update position and velocity. """
+
         if not self.trapped:
-            # Mutate velocities
-            self.dx += random.randrange(-3, 4)
-            self.dy += random.randrange(-3, 4)
+            # Save information on original rectangle
+            old_rect = self.rect
 
             # Cap velocities
             if self.dx > self.dx_cap:
@@ -147,15 +165,28 @@ class Cargo(pg.sprite.Sprite):
             if self.rect.left < 0:
                 self.rect.left = 0
                 self.dx = -(self.dx)
+                self.angle_rate=random.randrange(-5, 5)
             if self.rect.right > WIDTH:
                 self.rect.right = WIDTH
                 self.dx = -(self.dx)
+                self.angle_rate=random.randrange(-5, 5)
             if self.rect.top < 0:
                 self.rect.top = 0
                 self.dy = -(self.dy)
+                self.angle_rate=random.randrange(-5, 5)
             if self.rect.bottom > HEIGHT:
                 self.rect.bottom = HEIGHT
                 self.dy = -(self.dy)
+                self.angle_rate=random.randrange(-5, 5)
+
+            # Update angle and rotate cargo
+            self.angle += self.angle_rate
+            self.image, self.rect = self.rotate(old_rect)        
+
+            # Determine new x, y coordinates and move cargo
+            new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx
+            new_y = old_rect.y + ((old_rect.height - self.rect.height) / 2) + self.dy
+            self.rect.move_ip(new_x, new_y)    
 
 
 class Mitochondrion(Cargo):
@@ -165,8 +196,8 @@ class Mitochondrion(Cargo):
         x_dim=mod(300), 
         y_dim=mod(165), 
         score_val=100, 
-        x_speed_cap=mod(7), 
-        y_speed_cap=mod(7), 
+        x_speed_cap=mod(5), 
+        y_speed_cap=mod(5), 
         x=None, 
         y=None, 
         dx=None, 
@@ -200,8 +231,8 @@ class RNA(Cargo):
         x_dim=mod(75), 
         y_dim=mod(300), 
         score_val=150, 
-        x_speed_cap=mod(2), 
-        y_speed_cap=mod(12), 
+        x_speed_cap=mod(10), 
+        y_speed_cap=mod(10), 
         x=None, 
         y=None, 
         dx=None, 
@@ -278,6 +309,7 @@ class Button:
 
     def draw(self, screen):
         """ Center text and blit button to screen. """
+        
         pg.draw.rect(screen, self.color, self.rect)
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)

@@ -34,6 +34,7 @@ def in_bounds(screen_width, screen_height, item, buffer=0):
 
 def mod(*args):
     """ Modifies values based on screen resolution. """
+    
     results = list()
     for val in args:
         results.append(round(val * MOD))
