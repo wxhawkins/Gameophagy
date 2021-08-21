@@ -203,7 +203,6 @@ class Mitochondrion(Cargo):
         dx=None, 
         dy=None
     ):
-
         super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
 
 class Ribosome(Cargo):
@@ -220,7 +219,6 @@ class Ribosome(Cargo):
         dx=None, 
         dy=None
     ):
-
         super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
 
 
@@ -238,7 +236,6 @@ class RNA(Cargo):
         dx=None, 
         dy=None
     ):
-
         super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
 
 
@@ -256,7 +253,6 @@ class Pill(Cargo):
         dx=None, 
         dy=None
     ):
-
         super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
 
 
@@ -275,7 +271,20 @@ class Button:
         self.color = COLOR_INACTIVE
         self.active = False
 
-    def handle_event(self, event, glob_diff=None):
+    def draw(self, screen):
+        """ Center text and blit button to screen. """
+
+        pg.draw.rect(screen, self.color, self.rect)
+        text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
+        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
+        screen.blit(self.txt_surface, (text_x, text_y))
+
+
+class ModeButton(Button):
+    def __init__(self, x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_):
+        super().__init__(x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_)
+
+    def handle_event(self, event, mode):
         """ Detect button click and respond accordingly. """
 
         # Check if button is currently being clicked
@@ -284,36 +293,66 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 clicked = True
 
-        # Handle toggle buttons
-        if self.toggle:
-            if clicked:
-                self.active = True
-                glob_diff = self.text
-        # Handle non-toggle buttons
-        else:
-            if clicked:            
-                self.active = True
-                
-            # Trigger callback if button click completed
-            elif not clicked:
-                if self.active:
-                    self.callback(*self.args, **self.kwargs)
-
-                self.active = False
+        # Toggle
+        if clicked:
+            self.active = True
+            mode = self.text
             
         # Set color based on activation state
         self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
 
-        return glob_diff
+        return mode
+
+class DifficultyButton(Button):
+    def __init__(self, x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_):
+        super().__init__(x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_)
+
+    def handle_event(self, event, difficulty):
+        """ Detect button click and respond accordingly. """
+
+        # Check if button is currently being clicked
+        clicked = False
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                clicked = True
+
+        # Toggle
+        if clicked:
+            self.active = True
+            difficulty = self.text
+            
+        # Set color based on activation state
+        self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+
+        return difficulty
 
 
-    def draw(self, screen):
-        """ Center text and blit button to screen. """
-        
-        pg.draw.rect(screen, self.color, self.rect)
-        text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
-        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
-        screen.blit(self.txt_surface, (text_x, text_y))
+class PlayButton(Button):
+    def __init__(self, x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_):
+        super().__init__(x, y, w, h, font_, text_, toggle_, callback_, *args_, **kwargs_)
+
+    def handle_event(self, event):
+        """ Detect button click and respond accordingly. """
+
+        # Check if button is currently being clicked
+        clicked = False
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                clicked = True
+
+        # Handle click        
+        if clicked:            
+            self.active = True
+        # Trigger callback if button click completed
+        elif not clicked:
+            if self.active:
+                self.callback(*self.args, **self.kwargs)
+
+            self.active = False
+            
+        # Set color based on activation state
+        self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+
 
 def set_globs(w=None, h=None, m=None, d=None):
     global WIDTH

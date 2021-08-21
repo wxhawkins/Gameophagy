@@ -26,7 +26,7 @@ MOD = round(WIDTH / 1920, 3)
 misc_functions.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 
 import assets
-from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill
+from assets import Autophagosome, ModeButton, DifficultyButton, PlayButton, Mitochondrion, Ribosome, RNA, Pill
 
 assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 
@@ -97,11 +97,11 @@ def purge_cargo(all_sprites_group):
     return score_change
 
 
-def inactivate_buttons(buttons):
+def inactivate_buttons(buttons, current):
     """ Inactive buttons due to mutual exclusivity. """
 
     for button in buttons:
-        if button.text != DIFFICULTY:
+        if button.text != current:
             button.active = False
 
 
@@ -120,12 +120,14 @@ def intro_screen():
     pg.display.update()
 
     # Initalize buttons
-    bulk_button = Button(mod(1250), mod(80), mod(350), mod(60), FONT_4, "Bulk Autophagy", toggle_=True)
-    mitophagy_button = Button(mod(1620), mod(80), mod(250), mod(60), FONT_4, "Mitophagy", toggle_=True)
-    easy_button = Button(mod(1250), mod(160), mod(193), mod(60), FONT_4, "Easy", toggle_=True)
-    med_button = Button(mod(1464), mod(160), mod(193), mod(60), FONT_4, "Medium", toggle_=True)
-    hard_button = Button(mod(1677), mod(160), mod(193), mod(60), FONT_4, "Hard", toggle_=True)
-    play_button = Button(mod(1620), mod(240), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+    bulk_button = ModeButton(mod(1250), mod(80), mod(350), mod(60), FONT_4, "Bulk Autophagy", toggle_=True)
+    mitophagy_button = ModeButton(mod(1620), mod(80), mod(250), mod(60), FONT_4, "Mitophagy", toggle_=True)
+    easy_button = DifficultyButton(mod(1250), mod(160), mod(193), mod(60), FONT_4, "Easy", toggle_=True)
+    med_button = DifficultyButton(mod(1464), mod(160), mod(193), mod(60), FONT_4, "Medium", toggle_=True)
+    hard_button = DifficultyButton(mod(1677), mod(160), mod(193), mod(60), FONT_4, "Hard", toggle_=True)
+    play_button = PlayButton(mod(1620), mod(240), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+
+    # Establish button groups
     buttons = [bulk_button, mitophagy_button, easy_button, med_button, hard_button, play_button]
     mode_buttons = [bulk_button, mitophagy_button]
     diff_buttons = [easy_button, med_button, hard_button]
@@ -153,17 +155,15 @@ def intro_screen():
 
             # Check for game mode change
             for button in mode_buttons:
-                glob_mode_ori = MODE
                 MODE = button.handle_event(event, MODE)
-                if MODE != glob_mode_ori:
-                    inactivate_buttons([bulk_button, mitophagy_button])
+                inactivate_buttons([bulk_button, mitophagy_button], MODE)
 
             # Check for difficulty change
             for button in diff_buttons:
-                glob_diff_ori = DIFFICULTY
                 DIFFICULTY = button.handle_event(event, DIFFICULTY)
-                if DIFFICULTY != glob_diff_ori:
-                    inactivate_buttons([easy_button, med_button, hard_button])
+                inactivate_buttons([easy_button, med_button, hard_button], DIFFICULTY)
+
+            play_button.handle_event(event)
 
         for button in buttons:
             button.draw(SCREEN)
@@ -194,7 +194,7 @@ def end_screen(score):
             out_file.write("[]")
         end_screen(score)
 
-    play_button = Button(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
+    play_button = PlayButton(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
 
     # Show final score
     SCREEN.fill(BACKGROUND_BLUE)
@@ -218,7 +218,7 @@ def end_screen(score):
         for event in pg.event.get():
             exit_check(event)
 
-            play_button.handle_event(event, DIFFICULTY)
+            play_button.handle_event(event)
 
         play_button.draw(SCREEN)
         pg.display.flip()
