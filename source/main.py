@@ -50,7 +50,6 @@ MISS_PENALTY = 50
 MAKE_PENALTY = 200
 MIN_AREA = mod(20000)
 DIFFICULTY = None
-MODE = None
 
 # Define fonts
 pg.font.init()
@@ -120,20 +119,11 @@ def intro_screen():
     pg.display.update()
 
     # Initalize buttons
-    bulk_button = Button(mod(1250), mod(80), mod(350), mod(60), FONT_4, "Bulk Autophagy", toggle_=True)
-    mitophagy_button = Button(mod(1620), mod(80), mod(250), mod(60), FONT_4, "Mitophagy", toggle_=True)
-    easy_button = Button(mod(1250), mod(160), mod(193), mod(60), FONT_4, "Easy", toggle_=True)
-    med_button = Button(mod(1464), mod(160), mod(193), mod(60), FONT_4, "Medium", toggle_=True)
-    hard_button = Button(mod(1677), mod(160), mod(193), mod(60), FONT_4, "Hard", toggle_=True)
-    play_button = Button(mod(1620), mod(240), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
-    buttons = [bulk_button, mitophagy_button, easy_button, med_button, hard_button, play_button]
-    mode_buttons = [bulk_button, mitophagy_button]
-    diff_buttons = [easy_button, med_button, hard_button]
-
-    # Initialize game mode
-    global MODE
-    MODE = "Bulk"
-    bulk_button.active = True
+    play_button = Button(mod(1580), mod(150), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+    easy_button = Button(mod(1250), mod(70), mod(180), mod(60), FONT_4, "Easy", toggle_=True)
+    med_button = Button(mod(1450), mod(70), mod(180), mod(60), FONT_4, "Medium", toggle_=True)
+    hard_button = Button(mod(1650), mod(70), mod(180), mod(60), FONT_4, "Hard", toggle_=True)
+    buttons = [play_button, easy_button, med_button, hard_button]
 
     # Initalize difficulty
     global DIFFICULTY
@@ -151,15 +141,8 @@ def intro_screen():
                 if event.key == K_RETURN:
                     game_loop()
 
-            # Check for game mode change
-            for button in mode_buttons:
-                glob_mode_ori = MODE
-                MODE = button.handle_event(event, MODE)
-                if MODE != glob_mode_ori:
-                    inactivate_buttons([bulk_button, mitophagy_button])
-
             # Check for difficulty change
-            for button in diff_buttons:
+            for button in buttons:
                 glob_diff_ori = DIFFICULTY
                 DIFFICULTY = button.handle_event(event, DIFFICULTY)
                 if DIFFICULTY != glob_diff_ori:
