@@ -1,3 +1,5 @@
+import math
+
 WIDTH = 0
 HEIGHT = 0
 HEADER_HEIGHT = 0
@@ -41,6 +43,13 @@ def mod(*args):
         results.append(round(val * MOD))
     
     return results[0] if len(results) == 1 else tuple(results)
+
+
+def get_delta_length(length, angle):
+    angle = (angle % 90) * 2
+    angle = math.radians(angle)
+    delta = (abs(math.sin(angle)) * (length * 0.24))
+    return (delta / 2)
 
 
 def set_globs(w=None, h=None, m=None, d=None):

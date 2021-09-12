@@ -6,7 +6,7 @@ from pathlib import Path
 import pygame as pg
 from pygame import transform
 
-from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod
+from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod, get_delta_length
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -103,7 +103,7 @@ class Cargo(pg.sprite.Sprite):
         Intracellular entity that can become encapsulated by phagophore.
     """
 
-    def __init__(self, file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x=None, y=None, dx=None, dy=None):
+    def __init__(self, file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x=None, y=None, dx=None, dy=None, adjust_box=False):
         super().__init__()
 
         # Esablish appearance
@@ -134,6 +134,8 @@ class Cargo(pg.sprite.Sprite):
         self.trapped = False
         self.score_val = score_val * SCORE_SCALAR[DIFFICULTY]
 
+        self.adjust_box = adjust_box
+
 
     def rotate(self, old_rect):
         """ Rotate cargo by angle stored in self.angle. """
@@ -151,34 +153,31 @@ class Cargo(pg.sprite.Sprite):
             # Save information on original rectangle
             old_rect = self.rect
 
-            # Cap velocities
-            if self.dx > self.dx_cap:
-                self.dx = self.dx_cap
-            if self.dx < -(self.dx_cap):
-                self.dx = -(self.dx_cap)
-            if self.dy > self.dy_cap:
-                self.dy = self.dy_cap
-            if self.dy < -(self.dy_cap):
-                self.dy = -(self.dy_cap)
-
             # Update position
             self.rect.move_ip(self.dx, self.dy)
 
+            delta = get_delta_length(self.rect.width, self.angle) if self.adjust_box else 0
+
+            left = self.rect.left if not self.adjust_box else self.rect.left + delta
+            right = self.rect.right if not self.adjust_box else self.rect.right - delta
+            top = self.rect.top if not self.adjust_box else self.rect.top + delta
+            bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
+
             # Constrain to screen and flip velocities
-            if self.rect.left < 0:
-                self.rect.left = 0
+            if left < 0:
+                self.rect.left = 0 - delta
                 self.dx = -(self.dx)
                 self.angle_rate=random.randrange(-5, 5)
-            if self.rect.right > WIDTH:
-                self.rect.right = WIDTH
+            if right > WIDTH:
+                self.rect.right = WIDTH + delta
                 self.dx = -(self.dx)
                 self.angle_rate=random.randrange(-5, 5)
-            if self.rect.top < HEADER_HEIGHT:
-                self.rect.top = HEADER_HEIGHT
+            if top < HEADER_HEIGHT:
+                self.rect.top = HEADER_HEIGHT - delta
                 self.dy = -(self.dy)
                 self.angle_rate=random.randrange(-5, 5)
-            if self.rect.bottom > HEIGHT:
-                self.rect.bottom = HEIGHT
+            if bottom > HEIGHT:
+                self.rect.bottom = HEIGHT + delta
                 self.dy = -(self.dy)
                 self.angle_rate=random.randrange(-5, 5)
 
@@ -204,10 +203,11 @@ class Mitochondrion(Cargo):
         x=None, 
         y=None, 
         dx=None, 
-        dy=None
+        dy=None,
+        adjust_box=True
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 class Ribosome(Cargo):
     def __init__(
@@ -221,10 +221,11 @@ class Ribosome(Cargo):
         x=None, 
         y=None, 
         dx=None, 
-        dy=None
+        dy=None,
+        adjust_box=False
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class RNA(Cargo):
@@ -239,10 +240,11 @@ class RNA(Cargo):
         x=None, 
         y=None, 
         dx=None, 
-        dy=None
+        dy=None,
+        adjust_box=False
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class Pill(Cargo):
@@ -257,10 +259,11 @@ class Pill(Cargo):
         x=None, 
         y=None, 
         dx=None, 
-        dy=None
+        dy=None,
+        adjust_box=False
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy)
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class Button:

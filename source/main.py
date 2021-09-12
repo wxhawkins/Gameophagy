@@ -10,7 +10,7 @@ from pygame.locals import *
 
 # Import personal files
 import misc_functions
-from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod
+from misc_functions import get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
