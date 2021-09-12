@@ -41,9 +41,7 @@ HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
 RIBO_NUM = 20
 RNA_NUM = 10
-# MITO_NUM = 1
-# RIBO_NUM = 0
-# RNA_NUM = 0
+
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
@@ -125,7 +123,7 @@ def intro_screen():
     easy_button = DifficultyButton(mod(1250), mod(160), mod(193), mod(60), FONT_4, "Easy", toggle_=True)
     med_button = DifficultyButton(mod(1464), mod(160), mod(193), mod(60), FONT_4, "Medium", toggle_=True)
     hard_button = DifficultyButton(mod(1677), mod(160), mod(193), mod(60), FONT_4, "Hard", toggle_=True)
-    play_button = PlayButton(mod(1620), mod(240), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+    play_button = PlayButton(mod(1620), mod(240), mod(250), mod(105), FONT_3, "Play", callback_=handle_game_mode)
 
     # Establish button groups
     buttons = [bulk_button, mitophagy_button, easy_button, med_button, hard_button, play_button]
@@ -134,7 +132,7 @@ def intro_screen():
 
     # Initialize game mode
     global MODE
-    MODE = "Bulk"
+    MODE = "Bulk Autophagy"
     bulk_button.active = True
 
     # Initalize difficulty
@@ -151,7 +149,7 @@ def intro_screen():
             # Allow quick play with return key
             if event.type == KEYDOWN:
                 if event.key == K_RETURN:
-                    game_loop()
+                    handle_game_mode()
 
             # Check for game mode change
             for button in mode_buttons:
@@ -266,6 +264,11 @@ def spawn_cargo():
 
     return all_cargo, good_cargo
 
+def handle_game_mode():
+    if MODE == "Bulk Autophagy":
+        game_loop()
+    elif MODE == "Mitophagy":
+        mito_game_loop()
 
 def game_loop():
     """ Initialize and run game loop. """
@@ -304,6 +307,138 @@ def game_loop():
 
         # Add background
         SCREEN.fill(BACKGROUND_BLUE)
+
+        # Store mouse position for current frame
+        cur_loc = pg.mouse.get_pos()
+
+        # Handle AP acceleration due to mouse dragging
+        for AP in APs:
+            AP.handle_event(event, prev_loc, cur_loc)
+            AP.update(SCREEN)
+            AP.draw(SCREEN)
+
+            # Purge cargo sprites if AP has left screen
+            if len(APs) == 0:
+                score += purge_cargo(all_cargo)
+                score -= MAKE_PENALTY
+
+        # Update cargo on screen
+        all_cargo.update()
+        all_cargo.draw(SCREEN)
+
+        #-----------------------------PHAGOPHORE HANDLING--------------------------
+        if len(APs) < 1:
+            # Mouse pressed
+            if pg.mouse.get_pressed()[0]:
+                if not timed_out:
+                    # Initial presss
+                    if not mouse_pressed:
+                        start_loc = cur_loc
+                        phago_locs = []
+                        mouse_pressed = True
+
+                    phago_locs.append(cur_loc)
+
+                    # Check for phagophore drawing timeout
+                    if len(phago_locs) > TIMEOUT_THRESH[DIFFICULTY]:
+                        start_loc, phago_locs = None, None
+                        timed_out = True
+                        _pill = Pill(score_val=TIMEOUT_PENALTY)
+                        all_cargo.add(_pill)
+                        SCREEN.fill(RED)
+            # Mouse released
+            elif not pg.mouse.get_pressed()[0]:
+                if timed_out:
+                    timed_out = False
+                    mouse_pressed = False
+                # Initial release
+                elif mouse_pressed and not timed_out:
+                    # If the circle was completed
+                    distance = get_distance(start_loc, cur_loc)
+                    if distance >= HIT_CIRCLE_RADIUS:
+                        score -= MISS_PENALTY
+                    # If circle was not completed
+                    else:
+                        AP = Autophagosome(phago_locs)
+                        if AP.area > MIN_AREA:
+                            APs.add(AP)
+                            
+                            # Freeze cargo within phagophore
+                            check_trapped(APs, all_cargo)
+
+                    start_loc, phago_locs = None, None
+                    mouse_pressed = False
+
+            # Draw phagophore
+            if phago_locs is not None:
+                if len(phago_locs) > 2:
+                    last_loc = phago_locs[0]
+                    for loc in phago_locs[1:]:
+                        pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
+                        pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, (last_loc[0]+1, last_loc[1]+1), mod(9))
+                        last_loc = loc
+
+            # Draw PAS
+            if start_loc is not None:
+                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
+                score_text = FONT_4.render(("PAS"), True, (0, 0, 0))
+                text_x, text_y = start_loc
+                SCREEN.blit(score_text, (text_x-32, text_y-25))
+
+        prev_loc = cur_loc
+
+        # Display score
+        score_text = FONT_3.render(str(score), True, (0, 0, 0))
+        SCREEN.blit(score_text, mod(15, 0))
+
+        # Check for end of game
+        if len(good_cargo) < 1:
+            running = False
+            end_screen(str(score))
+
+        # Refresh Screen
+        pg.display.flip()
+
+        # Set number of frames per second
+        clock.tick(60)
+
+def mito_game_loop():
+    """ Initialize and run game loop. """
+
+    assets.set_globs(d=DIFFICULTY)
+
+    # Initialize internal variables
+    score_text = FONT_3.render("0", True, (0, 0, 0))
+    score = 0
+    running = True
+    mouse_pressed = False
+    timed_out = False
+    phago_locs = None
+    start_loc = None
+    prev_loc = None
+
+    # Set caption
+    pg.display.set_caption(GAMETITLE)
+
+    # Initialize sprite groups
+    APs = pg.sprite.Group()
+    all_cargo, good_cargo = spawn_cargo()
+
+    # Main game loop
+    while running:
+        # Allow for closing
+        for event in pg.event.get():
+            exit_check(event)
+            
+            # Add quit option
+            if event.type == KEYDOWN:
+                if event.key == K_q:
+                    for sprite in all_cargo:
+                        sprite.kill()
+                        score = 0
+
+        # Add background
+        SCREEN.fill(GRAY)
 
         # Store mouse position for current frame
         cur_loc = pg.mouse.get_pos()
