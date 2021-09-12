@@ -1,1 +1,3 @@
 *.pyc
+source/__pycache__/misc_functions.cpython-38.pyc
+source/__pycache__/assets.cpython-38.pyc

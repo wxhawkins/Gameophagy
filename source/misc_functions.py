@@ -1,5 +1,6 @@
 WIDTH = 0
 HEIGHT = 0
+HEADER_HEIGHT = 0
 MOD = 1
 DIFFICULTY = None
 
@@ -24,7 +25,7 @@ def in_bounds(screen_width, screen_height, item, buffer=0):
     if any((
                 item.rect.right < (0 - buffer),
                 item.rect.left > (screen_width + buffer),
-                item.rect.bottom < (0 - buffer),
+                item.rect.bottom < (HEADER_HEIGHT - buffer),
                 item.rect.top > (screen_height + buffer)
               )):
         return False
@@ -45,10 +46,12 @@ def mod(*args):
 def set_globs(w=None, h=None, m=None, d=None):
     global WIDTH
     global HEIGHT
+    global HEADER_HEIGHT
     global MOD
     global DIFFICULTY
 
     WIDTH = WIDTH if w is None else w
     HEIGHT = HEIGHT if h is None else h
+    HEADER_HEIGHT = 0 if HEIGHT is None else int(HEIGHT * 0.07)
     MOD = MOD if m is None else m
     DIFFICULTY = DIFFICULTY if d is None else d

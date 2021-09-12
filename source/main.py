@@ -10,7 +10,7 @@ from pygame.locals import *
 
 # Import personal files
 import misc_functions
-from misc_functions import get_distance, in_bounds, mod
+from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -21,9 +21,10 @@ if DIR_PATH.name == "dist":
 # Initialize variables for screen resolution
 WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
 HEIGHT = round(WIDTH * (9/16))
+HEADER_HEIGHT = int(HEIGHT * 0.07)
 MOD = round(WIDTH / 1920, 3)
 
-misc_functions.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
+misc_functions.set_globs(w=WIDTH, h=HEIGHT,m=MOD)
 
 import assets
 from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill
@@ -33,6 +34,7 @@ assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 # Define colors
 GRAY = (80, 80, 80)
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
 BACKGROUND_BLUE = (144, 226, 222)
 PHAGO_GREEN_DARK =  (0, 138, 70)
 
@@ -41,9 +43,6 @@ HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
 RIBO_NUM = 20
 RNA_NUM = 10
-# MITO_NUM = 1
-# RIBO_NUM = 0
-# RNA_NUM = 0
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
@@ -258,6 +257,7 @@ def game_loop():
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))
     score = 0
+    phago_count = 0
     running = True
     mouse_pressed = False
     timed_out = False
@@ -316,6 +316,7 @@ def game_loop():
                         start_loc = cur_loc
                         phago_locs = []
                         mouse_pressed = True
+                        phago_count += 1
 
                     phago_locs.append(cur_loc)
 
@@ -355,21 +356,28 @@ def game_loop():
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
                         pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
-                        pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, (last_loc[0]+1, last_loc[1]+1), mod(9))
+                        pg.draw.circle(SCREEN, YELLOW, (last_loc[0]+1, last_loc[1]+1), mod(9))
                         last_loc = loc
 
             # Draw PAS
             if start_loc is not None:
                 pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
-                score_text = FONT_4.render(("PAS"), True, (0, 0, 0))
+                PAS_label = FONT_4.render(("PAS"), True, (0, 0, 0))
                 text_x, text_y = start_loc
-                SCREEN.blit(score_text, (text_x-32, text_y-25))
+                SCREEN.blit(PAS_label, (text_x-32, text_y-25))
 
         prev_loc = cur_loc
 
         # Display score
+        pg.draw.rect(SCREEN, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
         SCREEN.blit(score_text, mod(15, 0))
+
+        # Display phagophore count
+        phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
+        x_pos = (WIDTH - phago_count_text.get_size()[0]) - mod(40)
+        SCREEN.blit(phago_count_text, (x_pos, 0))
+
 
         # Check for end of game
         if len(good_cargo) < 1:

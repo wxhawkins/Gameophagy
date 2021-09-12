@@ -6,7 +6,7 @@ from pathlib import Path
 import pygame as pg
 from pygame import transform
 
-from misc_functions import get_distance, in_bounds, mod
+from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -20,6 +20,7 @@ COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
 WIDTH = 0
 HEIGHT = 0
+HEADER_HEIGHT = 0
 MOD = 1
 DIFFICULTY = None
 
@@ -66,6 +67,7 @@ class Autophagosome(pg.sprite.Sprite):
 
         self.contents = []
 
+
     def handle_event(self, event, prev_loc, cur_loc):
         """ Respond to player mouse dragging by accelerating AP. """
 
@@ -76,6 +78,7 @@ class Autophagosome(pg.sprite.Sprite):
                 # Update velocities
                 self.dx = (cur_loc[0] - prev_loc[0])
                 self.dy = (cur_loc[1] - prev_loc[1])
+
 
     def update(self, screen):
         """ Update AP position. """
@@ -111,22 +114,22 @@ class Cargo(pg.sprite.Sprite):
         self.image_static = self.image
         self.rect = self.image.get_rect()
 
-        # Initialize positions and velocites
-        adj_x_speed, adj_y_speed = 0, 0
-        while 0 in [adj_x_speed, adj_y_speed]:
-            adj_x_speed = round(x_speed_cap * SPEED_SCALAR[DIFFICULTY])
-            adj_y_speed = round(y_speed_cap * SPEED_SCALAR[DIFFICULTY])
+        # Initialize positions, velocites and angles
+        self.dx_cap = round(x_speed_cap * SPEED_SCALAR[DIFFICULTY])
+        self.dy_cap = round(y_speed_cap * SPEED_SCALAR[DIFFICULTY])
 
-        self.angle_rate=random.randrange(-5, 5)
         self.angle = random.randrange(0, 360)
+        self.angle_rate = 0
+        while self.angle_rate == 0:
+            self.angle_rate=random.randrange(-5, 5)
 
         self.rect.x = x if x is not None else random.randrange(0, WIDTH)
-        self.rect.y = y if y is not None else random.randrange(0, HEIGHT)
-        self.dx = dx if dx is not None else random.randrange(-adj_x_speed, adj_x_speed + 1)
-        self.dy = dy if dy is not None else random.randrange(-adj_y_speed, adj_y_speed + 1)
+        self.rect.y = y if y is not None else random.randrange(HEADER_HEIGHT, HEIGHT)
 
-        self.dx_cap = adj_x_speed
-        self.dy_cap = adj_y_speed
+        self.dx, self.dy = 0, 0
+        while 0 in [self.dx, self.dy]:
+            self.dx = dx if dx is not None else random.randrange(-self.dx_cap, self.dx_cap + 1)
+            self.dy = dy if dy is not None else random.randrange(-self.dy_cap, self.dy_cap + 1)
 
         self.trapped = False
         self.score_val = score_val * SCORE_SCALAR[DIFFICULTY]
@@ -170,8 +173,8 @@ class Cargo(pg.sprite.Sprite):
                 self.rect.right = WIDTH
                 self.dx = -(self.dx)
                 self.angle_rate=random.randrange(-5, 5)
-            if self.rect.top < 0:
-                self.rect.top = 0
+            if self.rect.top < HEADER_HEIGHT:
+                self.rect.top = HEADER_HEIGHT
                 self.dy = -(self.dy)
                 self.angle_rate=random.randrange(-5, 5)
             if self.rect.bottom > HEIGHT:
@@ -318,10 +321,13 @@ class Button:
 def set_globs(w=None, h=None, m=None, d=None):
     global WIDTH
     global HEIGHT
+    global HEADER_HEIGHT
     global MOD
     global DIFFICULTY
 
+
     WIDTH = WIDTH if w is None else w
     HEIGHT = HEIGHT if h is None else h
+    HEADER_HEIGHT = 0 if HEIGHT is None else int(HEIGHT * 0.07)
     MOD = MOD if m is None else m
     DIFFICULTY = DIFFICULTY if d is None else d

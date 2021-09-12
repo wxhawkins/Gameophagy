@@ -1,2 +1,14 @@
-Increase ribo score to above AP formation penalty
-Add loading message to Gameophagy.cmd
+- Add loading message to Gameophagy.cmd
+		- Cargo rotation
+- Fix mito collisions
+- Mito fission
+		- Improve Phagophore animation
+- Add Atg8
+- Add score bar
+- Add aux information
+		- Add PAS label
+- Optimize
+- Test with different resolutions
+- Make Mac version
+- Update background
+- Update cargo models
