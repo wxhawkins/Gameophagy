@@ -38,6 +38,7 @@ YELLOW = (255, 255, 0)
 BACKGROUND_BLUE = (144, 226, 222)
 PHAGO_GREEN_DARK =  (0, 138, 70)
 
+TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
@@ -49,6 +50,7 @@ MISS_PENALTY = 50
 MAKE_PENALTY = 200
 MIN_AREA = mod(20000)
 DIFFICULTY = None
+FISSION_THRESH = 2
 
 # Define fonts
 pg.font.init()
@@ -155,6 +157,8 @@ def intro_screen():
 
 def end_screen(score):
     """ Display end screen including final score and high scores. """
+    
+    score = int(score)
 
     # Read in high scores from JSON
     try:
@@ -249,6 +253,45 @@ def spawn_cargo():
     return all_cargo, good_cargo
 
 
+def fission_mito(all_cargo, good_cargo):
+    """ Split mitochondrion into two smaller mitochondria. """
+
+    # Extract largest mitochondrion
+    main_mito = None
+    for cargo in all_cargo:
+        if isinstance(cargo, assets.Mitochondrion):
+            if main_mito is None:
+                main_mito = cargo
+            if cargo.image_static.get_width() > main_mito.image_static.get_width():
+                main_mito = cargo
+    
+    # Skip if none left
+    if main_mito is None:
+        return all_cargo, good_cargo
+
+    # Skip if all mitos have gone through two fissions
+    if round(main_mito.image_static.get_width()) == round((Mitochondrion().image_static.get_width()/4)):
+        return all_cargo, good_cargo
+
+    # Create mini-mitos
+    for _ in range(2):
+        _mito = Mitochondrion(
+                x_dim=main_mito.image_static.get_width()/2, 
+                y_dim=main_mito.image_static.get_height()/2,
+                score_val=main_mito.score_val/2,
+                x=main_mito.rect.center[0]-(main_mito.image_static.get_width()/4),
+                y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4)
+                )
+
+        all_cargo.add(_mito)
+        good_cargo.add(_mito)
+    
+    # Destory original mito
+    main_mito.kill()
+
+    return all_cargo, good_cargo
+
+
 def game_loop():
     """ Initialize and run game loop. """
 
@@ -264,6 +307,8 @@ def game_loop():
     phago_locs = None
     start_loc = None
     prev_loc = None
+    timer = 1
+    tick_count = 0
 
     # Set caption
     pg.display.set_caption(GAMETITLE)
@@ -273,7 +318,7 @@ def game_loop():
     all_cargo, good_cargo = spawn_cargo()
 
     # Main game loop
-    while running:
+    while running:      
         # Allow for closing
         for event in pg.event.get():
             exit_check(event)
@@ -284,6 +329,13 @@ def game_loop():
                     for sprite in all_cargo:
                         sprite.kill()
                         score = 0
+
+        #Handle timing
+        tick_count += 1
+        if tick_count >= TICKRATE:
+            tick_count = 0
+            timer += 1
+            print("timer =", timer)
 
         # Add background
         SCREEN.fill(BACKGROUND_BLUE)
@@ -301,6 +353,11 @@ def game_loop():
             if len(APs) == 0:
                 score += purge_cargo(all_cargo)
                 score -= MAKE_PENALTY
+
+        # Handle mitochondrial fission
+        if timer % FISSION_THRESH == 0:
+            all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
+            timer += 1
 
         # Update cargo on screen
         all_cargo.update()
@@ -369,6 +426,7 @@ def game_loop():
         prev_loc = cur_loc
 
         # Display score
+        score = int(score)
         pg.draw.rect(SCREEN, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
         SCREEN.blit(score_text, mod(15, 0))
@@ -377,7 +435,6 @@ def game_loop():
         phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
         x_pos = (WIDTH - phago_count_text.get_size()[0]) - mod(40)
         SCREEN.blit(phago_count_text, (x_pos, 0))
-
 
         # Check for end of game
         if len(good_cargo) < 1:
@@ -388,7 +445,7 @@ def game_loop():
         pg.display.flip()
 
         # Set number of frames per second
-        clock.tick(60)
+        clock.tick(TICKRATE)
 
 intro_screen()
 pg.quit()

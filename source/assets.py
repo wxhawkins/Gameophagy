@@ -164,22 +164,26 @@ class Cargo(pg.sprite.Sprite):
             bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
 
             # Constrain to screen and flip velocities
+            rand_angle = 0
+            while rand_angle == 0:
+                rand_angle=random.randrange(-5, 5)
+
             if left < 0:
                 self.rect.left = 0 - delta
                 self.dx = -(self.dx)
-                self.angle_rate=random.randrange(-5, 5)
+                self.angle_rate = rand_angle
             if right > WIDTH:
                 self.rect.right = WIDTH + delta
                 self.dx = -(self.dx)
-                self.angle_rate=random.randrange(-5, 5)
+                self.angle_rate = rand_angle
             if top < HEADER_HEIGHT:
                 self.rect.top = HEADER_HEIGHT - delta
                 self.dy = -(self.dy)
-                self.angle_rate=random.randrange(-5, 5)
+                self.angle_rate = rand_angle
             if bottom > HEIGHT:
                 self.rect.bottom = HEIGHT + delta
                 self.dy = -(self.dy)
-                self.angle_rate=random.randrange(-5, 5)
+                self.angle_rate = rand_angle
 
             # Update angle and rotate cargo
             self.angle += self.angle_rate
