@@ -3,6 +3,7 @@ import datetime
 import json
 import sys
 from pathlib import Path
+import random
 
 import pygame as pg
 from pygame.locals import *
@@ -168,7 +169,7 @@ def end_screen(score):
         # Add line for current game
         cur_date = datetime.date.today()
         cur_date_fmt = f"{cur_date.month}/{cur_date.day}/{cur_date.year}"
-        score_list.append({"score": score, "difficulty": DIFFICULTY, "date": cur_date_fmt})    
+        score_list.append({"score": int(score), "difficulty": DIFFICULTY, "date": cur_date_fmt})    
 
         # Update high scores JSON
         with open((DIR_PATH / "scores" / "high_scores.json"), "w") as out_file:
@@ -184,15 +185,15 @@ def end_screen(score):
 
     # Show final score
     SCREEN.fill(BACKGROUND_BLUE)
-    final_score_text = FONT_3.render(("Final Score: " + score), True, (0, 0, 0))
+    final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
     SCREEN.blit(final_score_text, mod(100, 20))
 
     # Sort high scores
-    score_list = sorted(score_list, key=lambda x: x["score"], reverse=True)
+    score_list = sorted(score_list, key=lambda x: int(round(float(x["score"]))), reverse=True)
 
     # Show high scores
     for i, line in enumerate(score_list[:10]):
-        core_text = FONT_3.render(line["score"], True, (0, 0, 0))
+        core_text = FONT_3.render(str(line["score"]), True, (0, 0, 0))
         diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
         date_text = FONT_3.render(line["date"], True, (0, 0, 0))
         SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
@@ -256,14 +257,19 @@ def spawn_cargo():
 def fission_mito(all_cargo, good_cargo):
     """ Split mitochondrion into two smaller mitochondria. """
 
+    rand = random.randrange(1, 10)
+    if rand < 7: #40% chance
+        return all_cargo, good_cargo
+
     # Extract largest mitochondrion
     main_mito = None
     for cargo in all_cargo:
         if isinstance(cargo, assets.Mitochondrion):
-            if main_mito is None:
-                main_mito = cargo
-            if cargo.image_static.get_width() > main_mito.image_static.get_width():
-                main_mito = cargo
+            if not cargo.trapped:
+                if main_mito is None:
+                    main_mito = cargo
+                if cargo.image_static.get_width() > main_mito.image_static.get_width():
+                    main_mito = cargo
     
     # Skip if none left
     if main_mito is None:
@@ -335,7 +341,6 @@ def game_loop():
         if tick_count >= TICKRATE:
             tick_count = 0
             timer += 1
-            print("timer =", timer)
 
         # Add background
         SCREEN.fill(BACKGROUND_BLUE)
