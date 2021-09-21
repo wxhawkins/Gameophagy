@@ -9,6 +9,9 @@ import pygame as pg
 from pygame.locals import *
 
 
+import math
+import pygame.gfxdraw
+
 # Import personal files
 import misc_functions
 from misc_functions import get_distance, in_bounds, mod
@@ -298,6 +301,37 @@ def fission_mito(all_cargo, good_cargo):
     return all_cargo, good_cargo
 
 
+def aaline(surface, color, start_pos, end_pos, width=1):
+    """ Draws wide transparent anti-aliased lines. """
+    # ref https://stackoverflow.com/a/30599392/355230
+
+
+    x0, y0 = start_pos
+    x1, y1 = end_pos
+    midpnt_x, midpnt_y = (x0+x1)/2, (y0+y1)/2  # Center of line segment.
+    length = math.hypot(x1-x0, y1-y0)
+    angle = math.atan2(y0-y1, x0-x1)  # Slope of line.
+    width2, length2 = width/2, length/2
+    sin_ang, cos_ang = math.sin(angle), math.cos(angle)
+
+    width2_sin_ang  = width2*sin_ang
+    width2_cos_ang  = width2*cos_ang
+    length2_sin_ang = length2*sin_ang
+    length2_cos_ang = length2*cos_ang
+
+    # Calculate box ends.
+    ul = (midpnt_x + length2_cos_ang - width2_sin_ang,
+          midpnt_y + width2_cos_ang  + length2_sin_ang)
+    ur = (midpnt_x - length2_cos_ang - width2_sin_ang,
+          midpnt_y + width2_cos_ang  - length2_sin_ang)
+    bl = (midpnt_x + length2_cos_ang + width2_sin_ang,
+          midpnt_y - width2_cos_ang  + length2_sin_ang)
+    br = (midpnt_x - length2_cos_ang + width2_sin_ang,
+          midpnt_y - width2_cos_ang  - length2_sin_ang)
+
+    pg.gfxdraw.aapolygon(surface, (ul, ur, br, bl), color)
+    pg.gfxdraw.filled_polygon(surface, (ul, ur, br, bl), color)
+
 def game_loop():
     """ Initialize and run game loop. """
 
@@ -313,6 +347,7 @@ def game_loop():
     phago_locs = None
     start_loc = None
     prev_loc = None
+
     timer = 1
     tick_count = 0
 
@@ -323,8 +358,15 @@ def game_loop():
     APs = pg.sprite.Group()
     all_cargo, good_cargo = spawn_cargo()
 
+    # Add background
+    intro_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
+    intro_bg = pg.transform.scale(intro_bg, (WIDTH, HEIGHT))
+
     # Main game loop
     while running:      
+
+        SCREEN.blit(intro_bg, (0, 0))
+
         # Allow for closing
         for event in pg.event.get():
             exit_check(event)
@@ -341,9 +383,6 @@ def game_loop():
         if tick_count >= TICKRATE:
             tick_count = 0
             timer += 1
-
-        # Add background
-        SCREEN.fill(BACKGROUND_BLUE)
 
         # Store mouse position for current frame
         cur_loc = pg.mouse.get_pos()
@@ -417,8 +456,15 @@ def game_loop():
                 if len(phago_locs) > 2:
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
-                        pg.draw.circle(SCREEN, YELLOW, (last_loc[0]+1, last_loc[1]+1), mod(9))
+                        pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, (last_loc[0]+0, last_loc[1]+0), mod(31))
+                        aaline(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(60))
+                        # aaline(SCREEN, YELLOW, last_loc, loc, mod(23))                        
+                        last_loc = loc
+                    
+                    last_loc = phago_locs[0]
+                    for loc in phago_locs[1:]:
+                        aaline(SCREEN, YELLOW, last_loc, loc, mod(23))     
+                        pg.draw.circle(SCREEN, YELLOW, (last_loc[0]+0, last_loc[1]+0), mod(11))                   
                         last_loc = loc
 
             # Draw PAS
