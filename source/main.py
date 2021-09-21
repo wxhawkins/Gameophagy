@@ -54,7 +54,7 @@ MISS_PENALTY = 50
 MAKE_PENALTY = 200
 MIN_AREA = mod(20000)
 DIFFICULTY = None
-FISSION_THRESH = 2
+FISSION_THRESH = 1
 
 # Define fonts
 pg.font.init()
@@ -187,7 +187,9 @@ def end_screen(score):
     play_button = Button(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
 
     # Show final score
-    SCREEN.fill(BACKGROUND_BLUE)
+    bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
+    bg = pg.transform.scale(bg, (WIDTH, HEIGHT))
+    SCREEN.blit(bg, (0, 0))
     final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
     SCREEN.blit(final_score_text, mod(100, 20))
 
@@ -260,8 +262,8 @@ def spawn_cargo():
 def fission_mito(all_cargo, good_cargo):
     """ Split mitochondrion into two smaller mitochondria. """
 
-    rand = random.randrange(1, 10)
-    if rand < 7: #40% chance
+    rand = random.randrange(1, 100)
+    if rand >= 15: #15% chance of fission
         return all_cargo, good_cargo
 
     # Extract largest mitochondrion
@@ -381,6 +383,9 @@ def game_loop():
         #Handle timing
         tick_count += 1
         if tick_count >= TICKRATE:
+            # Chance of fission every second
+            all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
+            
             tick_count = 0
             timer += 1
 
@@ -399,9 +404,9 @@ def game_loop():
                 score -= MAKE_PENALTY
 
         # Handle mitochondrial fission
-        if timer % FISSION_THRESH == 0:
-            all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
-            timer += 1
+        # if timer % FISSION_THRESH == 0:
+        #     all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
+        #     timer += 1
 
         # Update cargo on screen
         all_cargo.update()
@@ -417,7 +422,6 @@ def game_loop():
                         start_loc = cur_loc
                         phago_locs = []
                         mouse_pressed = True
-                        phago_count += 1
 
                     phago_locs.append(cur_loc)
 
@@ -439,6 +443,7 @@ def game_loop():
                     distance = get_distance(start_loc, cur_loc)
                     if distance >= HIT_CIRCLE_RADIUS:
                         score -= MISS_PENALTY
+                        phago_count += 1
                     # If circle was not completed
                     else:
                         AP = Autophagosome(phago_locs)

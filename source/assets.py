@@ -59,8 +59,7 @@ class Autophagosome(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
 
         # Initalize location
-        self.rect.x = round(stats.mean(xs)) - (self.radius * 1.1)
-        self.rect.y = round(stats.mean(ys)) - self.radius
+        self.rect.center = (round(stats.mean([min(xs), max(xs)])), round(stats.mean([min(ys), max(ys)])))
 
         self.dx = 0
         self.dy = 0
