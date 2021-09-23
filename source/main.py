@@ -25,7 +25,6 @@ if DIR_PATH.name == "dist":
 # Initialize variables for screen resolution
 WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
 HEIGHT = round(WIDTH * (9/16))
-HEADER_HEIGHT = int(HEIGHT * 0.07)
 MOD = round(WIDTH / 1920, 3)
 
 misc_functions.set_globs(w=WIDTH, h=HEIGHT,m=MOD)
@@ -40,7 +39,9 @@ GRAY = (80, 80, 80)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BACKGROUND_BLUE = (144, 226, 222)
-PHAGO_GREEN_DARK =  (0, 138, 70)
+BLACK = (0, 0, 0)
+PHAGO_LIGHT =  (218, 200, 101)
+PHAGO_DARK = (196, 143, 85)
 
 TICKRATE = 60
 GAMETITLE = "Gameophagy"
@@ -51,14 +52,13 @@ RNA_NUM = 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
-MAKE_PENALTY = 200
 MIN_AREA = mod(20000)
 DIFFICULTY = None
 FISSION_THRESH = 1
 
 # Define fonts
 pg.font.init()
-conthrax_path = str(DIR_PATH / "fonts" / "conthrax.ttf")
+conthrax_path = str(DIR_PATH / "fonts" / "PermanentMarker-Regular.ttf")
 FONT_1 = pg.font.Font(conthrax_path, mod(130))
 FONT_2 = pg.font.Font(conthrax_path, mod(80))
 FONT_3 = pg.font.Font(conthrax_path, mod(60))
@@ -118,7 +118,7 @@ def intro_screen():
     SCREEN.blit(into_bg, (0, 0))
 
     # Set up title
-    title = FONT_1.render(GAMETITLE, True, GRAY)
+    title = FONT_1.render(GAMETITLE, True, BLACK)
     SCREEN.blit(title, mod(40, 21))
 
     pg.display.update()
@@ -189,6 +189,7 @@ def end_screen(score):
     # Show final score
     bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
     bg = pg.transform.scale(bg, (WIDTH, HEIGHT))
+
     SCREEN.blit(bg, (0, 0))
     final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
     SCREEN.blit(final_score_text, mod(100, 20))
@@ -291,7 +292,8 @@ def fission_mito(all_cargo, good_cargo):
                 y_dim=main_mito.image_static.get_height()/2,
                 score_val=main_mito.score_val/2,
                 x=main_mito.rect.center[0]-(main_mito.image_static.get_width()/4),
-                y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4)
+                y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4),
+                scale_score=False
                 )
 
         all_cargo.add(_mito)
@@ -336,7 +338,6 @@ def aaline(surface, color, start_pos, end_pos, width=1):
 
 def game_loop():
     """ Initialize and run game loop. """
-
     assets.set_globs(d=DIFFICULTY)
 
     # Initialize internal variables
@@ -401,7 +402,6 @@ def game_loop():
             # Purge cargo sprites if AP has left screen
             if len(APs) == 0:
                 score += purge_cargo(all_cargo)
-                score -= MAKE_PENALTY
 
         # Handle mitochondrial fission
         # if timer % FISSION_THRESH == 0:
@@ -449,6 +449,7 @@ def game_loop():
                         AP = Autophagosome(phago_locs)
                         if AP.area > MIN_AREA:
                             APs.add(AP)
+                            phago_count += 1
                             
                             # Freeze cargo within phagophore
                             check_trapped(APs, all_cargo)
@@ -461,20 +462,20 @@ def game_loop():
                 if len(phago_locs) > 2:
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, (last_loc[0]+0, last_loc[1]+0), mod(31))
-                        aaline(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(60))
+                        pg.draw.circle(SCREEN, PHAGO_LIGHT, (last_loc[0]+0, last_loc[1]+0), mod(31))
+                        aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))
                         # aaline(SCREEN, YELLOW, last_loc, loc, mod(23))                        
                         last_loc = loc
                     
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        aaline(SCREEN, YELLOW, last_loc, loc, mod(23))     
-                        pg.draw.circle(SCREEN, YELLOW, (last_loc[0]+0, last_loc[1]+0), mod(11))                   
+                        aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))     
+                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))                   
                         last_loc = loc
 
             # Draw PAS
             if start_loc is not None:
-                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
+                pg.draw.circle(SCREEN, PHAGO_LIGHT, start_loc, mod(100))
                 PAS_label = FONT_4.render(("PAS"), True, (0, 0, 0))
                 text_x, text_y = start_loc
                 SCREEN.blit(PAS_label, (text_x-32, text_y-25))
@@ -483,7 +484,6 @@ def game_loop():
 
         # Display score
         score = int(score)
-        pg.draw.rect(SCREEN, GRAY, (0, 0, WIDTH, HEADER_HEIGHT))
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
         SCREEN.blit(score_text, mod(15, 0))
 

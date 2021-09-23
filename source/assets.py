@@ -6,7 +6,7 @@ from pathlib import Path
 import pygame as pg
 from pygame import transform
 
-from misc_functions import HEADER_HEIGHT, get_distance, in_bounds, mod, get_delta_length
+from misc_functions import get_distance, in_bounds, mod, get_delta_length
 
 # Define working directory
 DIR_PATH = Path.cwd().parent
@@ -20,7 +20,6 @@ COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
 WIDTH = 0
 HEIGHT = 0
-HEADER_HEIGHT = 0
 MOD = 1
 DIFFICULTY = None
 
@@ -55,7 +54,7 @@ class Autophagosome(pg.sprite.Sprite):
         AP_dim = round((self.radius * 2) * 1.2)
         self.image = pg.image.load(str(DIR_PATH / "images" / "AP.png")).convert()
         self.image = pg.transform.scale(self.image, (AP_dim, AP_dim))
-        self.image.set_colorkey(WHITE)
+        self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
 
         # Initalize location
@@ -102,7 +101,21 @@ class Cargo(pg.sprite.Sprite):
         Intracellular entity that can become encapsulated by phagophore.
     """
 
-    def __init__(self, file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x=None, y=None, dx=None, dy=None, adjust_box=False):
+    def __init__(
+        self, 
+        file_name, 
+        x_dim, y_dim, 
+        score_val, 
+        x_speed_cap, 
+        y_speed_cap, 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None, 
+        adjust_box=False, 
+        scale_score=True
+        ):
+
         super().__init__()
 
         # Esablish appearance
@@ -123,7 +136,7 @@ class Cargo(pg.sprite.Sprite):
             self.angle_rate=random.randrange(-5, 5)
 
         self.rect.x = x if x is not None else random.randrange(0, WIDTH)
-        self.rect.y = y if y is not None else random.randrange(HEADER_HEIGHT, HEIGHT)
+        self.rect.y = y if y is not None else random.randrange(0, HEIGHT)
 
         self.dx, self.dy = 0, 0
         while 0 in [self.dx, self.dy]:
@@ -131,7 +144,7 @@ class Cargo(pg.sprite.Sprite):
             self.dy = dy if dy is not None else random.randrange(-self.dy_cap, self.dy_cap + 1)
 
         self.trapped = False
-        self.score_val = score_val * SCORE_SCALAR[DIFFICULTY]
+        self.score_val = score_val * SCORE_SCALAR[DIFFICULTY] if scale_score else score_val
 
         self.adjust_box = adjust_box
 
@@ -175,8 +188,8 @@ class Cargo(pg.sprite.Sprite):
                 self.rect.right = WIDTH + delta
                 self.dx = -(self.dx)
                 self.angle_rate = rand_angle
-            if top < HEADER_HEIGHT:
-                self.rect.top = HEADER_HEIGHT - delta
+            if top < 0:
+                self.rect.top = 0 - delta
                 self.dy = -(self.dy)
                 self.angle_rate = rand_angle
             if bottom > HEIGHT:
@@ -207,10 +220,11 @@ class Mitochondrion(Cargo):
         y=None, 
         dx=None, 
         dy=None,
-        adjust_box=True
+        adjust_box=True,
+        scale_score=True
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box, scale_score)
 
 class Ribosome(Cargo):
     def __init__(
@@ -319,7 +333,7 @@ class Button:
     def draw(self, screen):
         """ Center text and blit button to screen. """
         
-        pg.draw.rect(screen, self.color, self.rect)
+        pg.draw.ellipse(screen, self.color, self.rect)
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
         screen.blit(self.txt_surface, (text_x, text_y))
@@ -327,13 +341,11 @@ class Button:
 def set_globs(w=None, h=None, m=None, d=None):
     global WIDTH
     global HEIGHT
-    global HEADER_HEIGHT
     global MOD
     global DIFFICULTY
 
 
     WIDTH = WIDTH if w is None else w
     HEIGHT = HEIGHT if h is None else h
-    HEADER_HEIGHT = 0 if HEIGHT is None else int(HEIGHT * 0.07)
     MOD = MOD if m is None else m
     DIFFICULTY = DIFFICULTY if d is None else d
