@@ -16,6 +16,7 @@ if DIR_PATH.name == "dist":
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+BACKGROUND_BLUE = (188, 238, 240)
 COLOR_ACTIVE = (0, 0, 0)
 COLOR_INACTIVE = (80, 80, 80)
 WIDTH = 0
@@ -301,9 +302,11 @@ class Button:
     
         # Initialize image
         base_up = pg.image.load(str(DIR_PATH / "images" / "button_up.png")).convert()
-        base_down = pg.image.load(str(DIR_PATH / "images" / "button_down.jpg")).convert()
+        base_down = pg.image.load(str(DIR_PATH / "images" / "button_down.png")).convert()
         self.image_up = pg.transform.scale(base_up, (w, h))
         self.image_down = pg.transform.scale(base_down, (w, h))
+        self.image_up.set_colorkey(BLACK)
+        self.image_down.set_colorkey(BLACK)
 
     def handle_event(self, event, glob_diff=None):
         """ Detect button click and respond accordingly. """
@@ -342,9 +345,8 @@ class Button:
 
         image = self.image_down if self.active else self.image_up
         
-        pg.draw.ellipse(screen, self.color, self.rect)
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
-        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
+        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2) - 5
         screen.blit(image, self.rect)
         screen.blit(self.txt_surface, (text_x, text_y))
         

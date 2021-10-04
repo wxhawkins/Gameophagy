@@ -38,7 +38,7 @@ assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 GRAY = (80, 80, 80)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
-BACKGROUND_BLUE = (144, 226, 222)
+BACKGROUND_BLUE = (188, 238, 240)
 BLACK = (0, 0, 0)
 PHAGO_LIGHT =  (218, 200, 101)
 PHAGO_DARK = (196, 143, 85)
@@ -115,11 +115,9 @@ def intro_screen():
     # Set up intro screen background
     into_bg = pg.image.load(str(DIR_PATH / "images" / "start_screen_basic.png")).convert()
     into_bg = pg.transform.scale(into_bg, (WIDTH, HEIGHT))
-    SCREEN.blit(into_bg, (0, 0))
-
+    
     # Set up title
     title = FONT_1.render(GAMETITLE, True, BLACK)
-    SCREEN.blit(title, mod(40, 21))
 
     pg.display.update()
 
@@ -138,6 +136,9 @@ def intro_screen():
     # Intro page loop
     intro = True
     while intro:
+        SCREEN.blit(into_bg, (0, 0))
+        SCREEN.blit(title, mod(40, 21))
+
         for event in pg.event.get():
             exit_check(event)
 
@@ -184,30 +185,31 @@ def end_screen(score):
             out_file.write("[]")
         end_screen(score)
 
-    play_button = Button(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
+    play_button = Button(mod(1300), mod(20), mod(425), mod(120), FONT_3, "Play again", callback_=intro_screen)
 
     # Show final score
     bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
     bg = pg.transform.scale(bg, (WIDTH, HEIGHT))
 
-    SCREEN.blit(bg, (0, 0))
     final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
-    SCREEN.blit(final_score_text, mod(100, 20))
 
     # Sort high scores
     score_list = sorted(score_list, key=lambda x: int(round(float(x["score"]))), reverse=True)
 
-    # Show high scores
-    for i, line in enumerate(score_list[:10]):
-        core_text = FONT_3.render(str(line["score"]), True, (0, 0, 0))
-        diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
-        date_text = FONT_3.render(line["date"], True, (0, 0, 0))
-        SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
-        SCREEN.blit(diff_text, mod(700, 150 + (i * 80)))
-        SCREEN.blit(date_text, mod(1300, 150 + (i * 80)))
-
     # End page loop
     while True:
+        SCREEN.blit(bg, (0, 0))
+        SCREEN.blit(final_score_text, mod(100, 20))
+        
+        # Show high scores
+        for i, line in enumerate(score_list[:10]):
+            core_text = FONT_3.render(str(line["score"]), True, (0, 0, 0))
+            diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
+            date_text = FONT_3.render(line["date"], True, (0, 0, 0))
+            SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
+            SCREEN.blit(diff_text, mod(700, 150 + (i * 80)))
+            SCREEN.blit(date_text, mod(1300, 150 + (i * 80)))
+
         for event in pg.event.get():
             exit_check(event)
 
@@ -362,13 +364,13 @@ def game_loop():
     all_cargo, good_cargo = spawn_cargo()
 
     # Add background
-    intro_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
-    intro_bg = pg.transform.scale(intro_bg, (WIDTH, HEIGHT))
+    game_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
+    game_bg = pg.transform.scale(game_bg, (WIDTH, HEIGHT))
 
     # Main game loop
     while running:      
 
-        SCREEN.blit(intro_bg, (0, 0))
+        SCREEN.blit(game_bg, (0, 0))
 
         # Allow for closing
         for event in pg.event.get():
@@ -460,18 +462,28 @@ def game_loop():
             # Draw phagophore
             if phago_locs is not None:
                 if len(phago_locs) > 2:
+                    # Draw outer line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
                         pg.draw.circle(SCREEN, PHAGO_LIGHT, (last_loc[0]+0, last_loc[1]+0), mod(31))
-                        aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))
-                        # aaline(SCREEN, YELLOW, last_loc, loc, mod(23))                        
+                        aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))                   
                         last_loc = loc
-                    
+
+                    #Draw inner line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))     
-                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))                   
+                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))
+                        aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
                         last_loc = loc
+
+                    # Draw Atg8
+                    # last_loc = phago_locs[0]
+                    # for loc in phago_locs[1:]:
+                    #     pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))
+                    #     dx = last_loc[1]
+                    #     dy = 
+                    #     aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
+                    #     last_loc = loc
 
             # Draw PAS
             if start_loc is not None:
