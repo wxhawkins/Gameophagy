@@ -24,8 +24,8 @@ if DIR_PATH.name == "dist":
 
 # Initialize variables for screen resolution
 WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
-HEIGHT = round(WIDTH * (9/16))
-MOD = round(WIDTH / 1920, 3)
+HEIGHT = ctypes.windll.user32.GetSystemMetrics(1)
+MOD = round(WIDTH / 1920, 3) # Standardize to 1920x1080 resolution 
 
 misc_functions.set_globs(w=WIDTH, h=HEIGHT,m=MOD)
 

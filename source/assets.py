@@ -286,6 +286,7 @@ class Pill(Cargo):
 class Button:
     """ Clickable button. """
 
+
     def __init__(self, x, y, w, h, font_, text_, toggle_=False, callback_=None, *args_, **kwargs_):
         self.rect = pg.Rect(x, y, w, h)
         self.text = text_
@@ -297,6 +298,12 @@ class Button:
         self.kwargs = kwargs_
         self.color = COLOR_INACTIVE
         self.active = False
+    
+        # Initialize image
+        base_up = pg.image.load(str(DIR_PATH / "images" / "button_up.png")).convert()
+        base_down = pg.image.load(str(DIR_PATH / "images" / "button_down.jpg")).convert()
+        self.image_up = pg.transform.scale(base_up, (w, h))
+        self.image_down = pg.transform.scale(base_down, (w, h))
 
     def handle_event(self, event, glob_diff=None):
         """ Detect button click and respond accordingly. """
@@ -332,11 +339,15 @@ class Button:
 
     def draw(self, screen):
         """ Center text and blit button to screen. """
+
+        image = self.image_down if self.active else self.image_up
         
         pg.draw.ellipse(screen, self.color, self.rect)
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2)
+        screen.blit(image, self.rect)
         screen.blit(self.txt_surface, (text_x, text_y))
+        
 
 def set_globs(w=None, h=None, m=None, d=None):
     global WIDTH
