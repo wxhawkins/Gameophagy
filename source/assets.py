@@ -344,11 +344,12 @@ class Button:
         """ Center text and blit button to screen. """
 
         image = self.image_down if self.active else self.image_up
+        delta = (0.14*self.rect.h) if self.active else 0
         
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
         text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2) - 5
         screen.blit(image, self.rect)
-        screen.blit(self.txt_surface, (text_x, text_y))
+        screen.blit(self.txt_surface, (text_x, text_y+delta))
         
 
 def set_globs(w=None, h=None, m=None, d=None):
