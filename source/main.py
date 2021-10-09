@@ -55,6 +55,7 @@ MISS_PENALTY = 50
 MIN_AREA = mod(20000)
 DIFFICULTY = None
 FISSION_THRESH = 1
+ATG8_MIN_DIST = mod(100)
 
 # Define fonts
 pg.font.init()
@@ -338,6 +339,11 @@ def aaline(surface, color, start_pos, end_pos, width=1):
     pg.gfxdraw.aapolygon(surface, (ul, ur, br, bl), color)
     pg.gfxdraw.filled_polygon(surface, (ul, ur, br, bl), color)
 
+
+# def reverse_pythag(slope, hyp):
+
+
+
 def game_loop():
     """ Initialize and run game loop. """
     assets.set_globs(d=DIFFICULTY)
@@ -405,11 +411,6 @@ def game_loop():
             if len(APs) == 0:
                 score += purge_cargo(all_cargo)
 
-        # Handle mitochondrial fission
-        # if timer % FISSION_THRESH == 0:
-        #     all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
-        #     timer += 1
-
         # Update cargo on screen
         all_cargo.update()
         all_cargo.draw(SCREEN)
@@ -428,12 +429,23 @@ def game_loop():
                     phago_locs.append(cur_loc)
 
                     # Check for phagophore drawing timeout
-                    if len(phago_locs) > TIMEOUT_THRESH[DIFFICULTY]:
-                        start_loc, phago_locs = None, None
+                    distance = get_distance(start_loc, cur_loc)
+                    if len(phago_locs) >= TIMEOUT_THRESH[DIFFICULTY]:
+                        if distance >= HIT_CIRCLE_RADIUS:
+                            _pill = Pill(score_val=TIMEOUT_PENALTY)
+                            all_cargo.add(_pill)
+                            SCREEN.fill(RED)
+                        # If the circle was completed
+                        else:
+                            AP = Autophagosome(phago_locs)
+                            if AP.area > MIN_AREA:
+                                APs.add(AP)
+                                phago_count += 1
+                                check_trapped(APs, all_cargo)
+
                         timed_out = True
-                        _pill = Pill(score_val=TIMEOUT_PENALTY)
-                        all_cargo.add(_pill)
-                        SCREEN.fill(RED)
+                        start_loc, phago_locs = None, None
+
             # Mouse released
             elif not pg.mouse.get_pressed()[0]:
                 if timed_out:
@@ -452,8 +464,6 @@ def game_loop():
                         if AP.area > MIN_AREA:
                             APs.add(AP)
                             phago_count += 1
-                            
-                            # Freeze cargo within phagophore
                             check_trapped(APs, all_cargo)
 
                     start_loc, phago_locs = None, None
@@ -465,24 +475,51 @@ def game_loop():
                     # Draw outer line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.circle(SCREEN, PHAGO_LIGHT, (last_loc[0]+0, last_loc[1]+0), mod(31))
+                        pg.draw.circle(SCREEN, PHAGO_LIGHT, (last_loc[0], last_loc[1]), mod(31))
                         aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))                   
                         last_loc = loc
 
                     #Draw inner line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))
+                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0], last_loc[1]), mod(11))
                         aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
                         last_loc = loc
 
                     # Draw Atg8
+                    # total_dist = 0
                     # last_loc = phago_locs[0]
                     # for loc in phago_locs[1:]:
-                    #     pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0]+0, last_loc[1]+0), mod(11))
-                    #     dx = last_loc[1]
-                    #     dy = 
-                    #     aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
+                    #     total_dist += get_distance(last_loc, loc)
+                    #     if total_dist > ATG8_MIN_DIST:
+
+                    #         # Get starting loc and reciprical slope
+                    #         slope = (loc[1]-last_loc[1])/(loc[0]-last_loc[1])
+                    #         # Fix divide by zero issue
+                    #         if slope == 0:
+                    #             slope = 0.00001
+                    #         recip_slope = -(1/slope)
+                    #         midpoint = ((loc[0]+last_loc[0])/2, (loc[1]+last_loc[1])/2)
+
+                    #         dist = 25
+
+                    #         # Calculate x
+                    #         temp = 1+(recip_slope**2)
+                    #         x = ((dist**2)/temp)**0.5
+                    #         # Calculate y from x and dist using pyythagorean
+                    #         y = (dist**2 - x**2)**0.5
+
+                    #         if slope > 0:
+                    #             outer_atg8 = (midpoint[0]+x, midpoint[1]+y)
+                    #             inner_atg8 = (midpoint[0]-x, midpoint[1]-y)
+                    #         elif slope < 0:
+                    #             outer_atg8 = (midpoint[0]-x, midpoint[1]+y)
+                    #             inner_atg8 = (midpoint[0]+x, midpoint[1]-y)
+
+                    #         pg.draw.circle(SCREEN, YELLOW, outer_atg8, mod(11))
+                    #         pg.draw.circle(SCREEN, YELLOW, inner_atg8, mod(11))
+
+                    #         total_dist = 0
                     #     last_loc = loc
 
             # Draw PAS

@@ -70,13 +70,35 @@ class Autophagosome(pg.sprite.Sprite):
     def handle_event(self, event, prev_loc, cur_loc):
         """ Respond to player mouse dragging by accelerating AP. """
 
+        def at_edge(loc, buffer_percent):
+            """ Determine if mouse is near the edge of the screen. """
+            
+            buffer = buffer_percent / 100
+            if loc[0] < (buffer * WIDTH):
+                return True
+            if loc[0] > ((1 - buffer) * WIDTH):
+                return True
+            if loc[1] < (buffer * HEIGHT):
+                return True
+            if loc[1] > ((1 - buffer) * HEIGHT):
+                return True
+            
+            return False
+
         if pg.mouse.get_pressed()[0]:
             # See if click is within AP
             distance = get_distance(self.rect.center, cur_loc)
             if distance < self.radius:
                 # Update velocities
-                self.dx = (cur_loc[0] - prev_loc[0])
-                self.dy = (cur_loc[1] - prev_loc[1])
+                print(cur_loc)
+                dx = (cur_loc[0] - prev_loc[0])
+                dy = (cur_loc[1] - prev_loc[1])
+
+                if 0 in (dx, dy):
+                    if at_edge(cur_loc, 5):
+                        return
+
+                self.dx, self.dy = dx, dy
 
 
     def update(self, screen):
