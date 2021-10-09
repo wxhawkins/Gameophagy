@@ -1,14 +1,21 @@
-- Add loading message to Gameophagy.cmd
 		- Cargo rotation
-- Fix mito collisions
-- Mito fission
+		- Fix mito collisions
+		- Mito fission
 		- Improve Phagophore animation
-- Add Atg8
-- Add score bar
-- Add aux information
+		- Add score bar
+		- Add aux information
+		- Eliminate immobility
 		- Add PAS label
-- Optimize
-- Test with different resolutions
-- Make Mac version
-- Update background
-- Update cargo models
+		- Make phagophore counter only count truely aborted phagophores
+		- Update phagophore
+		- Test with different resolutions
+		- Make Mac version
+		- Update background
+		- Update cargo models
+- Optimize (pygame.sprite.collide_circle())
+- Add loading message to Gameophagy.cmd
+- Add Atg8
+- If circle is complete but mouse not released, still make autophagosome
+- Add instructions page
+- Fix dragging autophagosome off of screen error
+- Update PAS image

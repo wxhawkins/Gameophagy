@@ -3,10 +3,14 @@ import datetime
 import json
 import sys
 from pathlib import Path
+import random
 
 import pygame as pg
 from pygame.locals import *
 
+
+import math
+import pygame.gfxdraw
 
 # Import personal files
 import misc_functions
@@ -20,10 +24,10 @@ if DIR_PATH.name == "dist":
 
 # Initialize variables for screen resolution
 WIDTH = ctypes.windll.user32.GetSystemMetrics(0)
-HEIGHT = round(WIDTH * (9/16))
-MOD = round(WIDTH / 1920, 3)
+HEIGHT = ctypes.windll.user32.GetSystemMetrics(1)
+MOD = round(WIDTH / 1920, 3) # Standardize to 1920x1080 resolution 
 
-misc_functions.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
+misc_functions.set_globs(w=WIDTH, h=HEIGHT,m=MOD)
 
 import assets
 from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill
@@ -33,9 +37,13 @@ assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 # Define colors
 GRAY = (80, 80, 80)
 RED = (255, 0, 0)
-BACKGROUND_BLUE = (144, 226, 222)
-PHAGO_GREEN_DARK =  (0, 138, 70)
+YELLOW = (255, 255, 0)
+BACKGROUND_BLUE = (188, 238, 240)
+BLACK = (0, 0, 0)
+PHAGO_LIGHT =  (218, 200, 101)
+PHAGO_DARK = (196, 143, 85)
 
+TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5
@@ -44,13 +52,14 @@ RNA_NUM = 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
-MAKE_PENALTY = 200
 MIN_AREA = mod(20000)
 DIFFICULTY = None
+FISSION_THRESH = 1
+ATG8_MIN_DIST = mod(100)
 
 # Define fonts
 pg.font.init()
-conthrax_path = str(DIR_PATH / "fonts" / "conthrax.ttf")
+conthrax_path = str(DIR_PATH / "fonts" / "PermanentMarker-Regular.ttf")
 FONT_1 = pg.font.Font(conthrax_path, mod(130))
 FONT_2 = pg.font.Font(conthrax_path, mod(80))
 FONT_3 = pg.font.Font(conthrax_path, mod(60))
@@ -107,11 +116,9 @@ def intro_screen():
     # Set up intro screen background
     into_bg = pg.image.load(str(DIR_PATH / "images" / "start_screen_basic.png")).convert()
     into_bg = pg.transform.scale(into_bg, (WIDTH, HEIGHT))
-    SCREEN.blit(into_bg, (0, 0))
-
+    
     # Set up title
-    title = FONT_1.render(GAMETITLE, True, GRAY)
-    SCREEN.blit(title, mod(40, 21))
+    title = FONT_1.render(GAMETITLE, True, BLACK)
 
     pg.display.update()
 
@@ -130,6 +137,9 @@ def intro_screen():
     # Intro page loop
     intro = True
     while intro:
+        SCREEN.blit(into_bg, (0, 0))
+        SCREEN.blit(title, mod(40, 21))
+
         for event in pg.event.get():
             exit_check(event)
 
@@ -153,6 +163,8 @@ def intro_screen():
 
 def end_screen(score):
     """ Display end screen including final score and high scores. """
+    
+    score = int(score)
 
     # Read in high scores from JSON
     try:
@@ -162,7 +174,7 @@ def end_screen(score):
         # Add line for current game
         cur_date = datetime.date.today()
         cur_date_fmt = f"{cur_date.month}/{cur_date.day}/{cur_date.year}"
-        score_list.append({"score": score, "difficulty": DIFFICULTY, "date": cur_date_fmt})    
+        score_list.append({"score": int(score), "difficulty": DIFFICULTY, "date": cur_date_fmt})    
 
         # Update high scores JSON
         with open((DIR_PATH / "scores" / "high_scores.json"), "w") as out_file:
@@ -174,27 +186,31 @@ def end_screen(score):
             out_file.write("[]")
         end_screen(score)
 
-    play_button = Button(mod(1300), mod(20), mod(425), mod(80), FONT_3, "Play again", callback_=intro_screen)
+    play_button = Button(mod(1300), mod(20), mod(425), mod(120), FONT_3, "Play again", callback_=intro_screen)
 
     # Show final score
-    SCREEN.fill(BACKGROUND_BLUE)
-    final_score_text = FONT_3.render(("Final Score: " + score), True, (0, 0, 0))
-    SCREEN.blit(final_score_text, mod(100, 20))
+    bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
+    bg = pg.transform.scale(bg, (WIDTH, HEIGHT))
+
+    final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
 
     # Sort high scores
-    score_list = sorted(score_list, key=lambda x: x["score"], reverse=True)
-
-    # Show high scores
-    for i, line in enumerate(score_list[:10]):
-        core_text = FONT_3.render(line["score"], True, (0, 0, 0))
-        diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
-        date_text = FONT_3.render(line["date"], True, (0, 0, 0))
-        SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
-        SCREEN.blit(diff_text, mod(700, 150 + (i * 80)))
-        SCREEN.blit(date_text, mod(1300, 150 + (i * 80)))
+    score_list = sorted(score_list, key=lambda x: int(round(float(x["score"]))), reverse=True)
 
     # End page loop
     while True:
+        SCREEN.blit(bg, (0, 0))
+        SCREEN.blit(final_score_text, mod(100, 20))
+        
+        # Show high scores
+        for i, line in enumerate(score_list[:10]):
+            core_text = FONT_3.render(str(line["score"]), True, (0, 0, 0))
+            diff_text = FONT_3.render(line["difficulty"], True, (0, 0, 0))
+            date_text = FONT_3.render(line["date"], True, (0, 0, 0))
+            SCREEN.blit(core_text, mod(100, 150 + (i * 80)))
+            SCREEN.blit(diff_text, mod(700, 150 + (i * 80)))
+            SCREEN.blit(date_text, mod(1300, 150 + (i * 80)))
+
         for event in pg.event.get():
             exit_check(event)
 
@@ -247,20 +263,104 @@ def spawn_cargo():
     return all_cargo, good_cargo
 
 
+def fission_mito(all_cargo, good_cargo):
+    """ Split mitochondrion into two smaller mitochondria. """
+
+    rand = random.randrange(1, 100)
+    if rand >= 15: #15% chance of fission
+        return all_cargo, good_cargo
+
+    # Extract largest mitochondrion
+    main_mito = None
+    for cargo in all_cargo:
+        if isinstance(cargo, assets.Mitochondrion):
+            if not cargo.trapped:
+                if main_mito is None:
+                    main_mito = cargo
+                if cargo.image_static.get_width() > main_mito.image_static.get_width():
+                    main_mito = cargo
+    
+    # Skip if none left
+    if main_mito is None:
+        return all_cargo, good_cargo
+
+    # Skip if all mitos have gone through two fissions
+    if round(main_mito.image_static.get_width()) == round((Mitochondrion().image_static.get_width()/4)):
+        return all_cargo, good_cargo
+
+    # Create mini-mitos
+    for _ in range(2):
+        _mito = Mitochondrion(
+                x_dim=main_mito.image_static.get_width()/2, 
+                y_dim=main_mito.image_static.get_height()/2,
+                score_val=main_mito.score_val/2,
+                x=main_mito.rect.center[0]-(main_mito.image_static.get_width()/4),
+                y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4),
+                scale_score=False
+                )
+
+        all_cargo.add(_mito)
+        good_cargo.add(_mito)
+    
+    # Destory original mito
+    main_mito.kill()
+
+    return all_cargo, good_cargo
+
+
+def aaline(surface, color, start_pos, end_pos, width=1):
+    """ Draws wide transparent anti-aliased lines. """
+    # ref https://stackoverflow.com/a/30599392/355230
+
+
+    x0, y0 = start_pos
+    x1, y1 = end_pos
+    midpnt_x, midpnt_y = (x0+x1)/2, (y0+y1)/2  # Center of line segment.
+    length = math.hypot(x1-x0, y1-y0)
+    angle = math.atan2(y0-y1, x0-x1)  # Slope of line.
+    width2, length2 = width/2, length/2
+    sin_ang, cos_ang = math.sin(angle), math.cos(angle)
+
+    width2_sin_ang  = width2*sin_ang
+    width2_cos_ang  = width2*cos_ang
+    length2_sin_ang = length2*sin_ang
+    length2_cos_ang = length2*cos_ang
+
+    # Calculate box ends.
+    ul = (midpnt_x + length2_cos_ang - width2_sin_ang,
+          midpnt_y + width2_cos_ang  + length2_sin_ang)
+    ur = (midpnt_x - length2_cos_ang - width2_sin_ang,
+          midpnt_y + width2_cos_ang  - length2_sin_ang)
+    bl = (midpnt_x + length2_cos_ang + width2_sin_ang,
+          midpnt_y - width2_cos_ang  + length2_sin_ang)
+    br = (midpnt_x - length2_cos_ang + width2_sin_ang,
+          midpnt_y - width2_cos_ang  - length2_sin_ang)
+
+    pg.gfxdraw.aapolygon(surface, (ul, ur, br, bl), color)
+    pg.gfxdraw.filled_polygon(surface, (ul, ur, br, bl), color)
+
+
+# def reverse_pythag(slope, hyp):
+
+
+
 def game_loop():
     """ Initialize and run game loop. """
-
     assets.set_globs(d=DIFFICULTY)
 
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))
     score = 0
+    phago_count = 0
     running = True
     mouse_pressed = False
     timed_out = False
     phago_locs = None
     start_loc = None
     prev_loc = None
+
+    timer = 1
+    tick_count = 0
 
     # Set caption
     pg.display.set_caption(GAMETITLE)
@@ -269,8 +369,15 @@ def game_loop():
     APs = pg.sprite.Group()
     all_cargo, good_cargo = spawn_cargo()
 
+    # Add background
+    game_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
+    game_bg = pg.transform.scale(game_bg, (WIDTH, HEIGHT))
+
     # Main game loop
-    while running:
+    while running:      
+
+        SCREEN.blit(game_bg, (0, 0))
+
         # Allow for closing
         for event in pg.event.get():
             exit_check(event)
@@ -282,8 +389,14 @@ def game_loop():
                         sprite.kill()
                         score = 0
 
-        # Add background
-        SCREEN.fill(BACKGROUND_BLUE)
+        #Handle timing
+        tick_count += 1
+        if tick_count >= TICKRATE:
+            # Chance of fission every second
+            all_cargo, good_cargo = fission_mito(all_cargo, good_cargo)
+            
+            tick_count = 0
+            timer += 1
 
         # Store mouse position for current frame
         cur_loc = pg.mouse.get_pos()
@@ -297,7 +410,6 @@ def game_loop():
             # Purge cargo sprites if AP has left screen
             if len(APs) == 0:
                 score += purge_cargo(all_cargo)
-                score -= MAKE_PENALTY
 
         # Update cargo on screen
         all_cargo.update()
@@ -317,12 +429,23 @@ def game_loop():
                     phago_locs.append(cur_loc)
 
                     # Check for phagophore drawing timeout
-                    if len(phago_locs) > TIMEOUT_THRESH[DIFFICULTY]:
-                        start_loc, phago_locs = None, None
+                    distance = get_distance(start_loc, cur_loc)
+                    if len(phago_locs) >= TIMEOUT_THRESH[DIFFICULTY]:
+                        if distance >= HIT_CIRCLE_RADIUS:
+                            _pill = Pill(score_val=TIMEOUT_PENALTY)
+                            all_cargo.add(_pill)
+                            SCREEN.fill(RED)
+                        # If the circle was completed
+                        else:
+                            AP = Autophagosome(phago_locs)
+                            if AP.area > MIN_AREA:
+                                APs.add(AP)
+                                phago_count += 1
+                                check_trapped(APs, all_cargo)
+
                         timed_out = True
-                        _pill = Pill(score_val=TIMEOUT_PENALTY)
-                        all_cargo.add(_pill)
-                        SCREEN.fill(RED)
+                        start_loc, phago_locs = None, None
+
             # Mouse released
             elif not pg.mouse.get_pressed()[0]:
                 if timed_out:
@@ -334,36 +457,89 @@ def game_loop():
                     distance = get_distance(start_loc, cur_loc)
                     if distance >= HIT_CIRCLE_RADIUS:
                         score -= MISS_PENALTY
+                        phago_count += 1
                     # If circle was not completed
                     else:
                         AP = Autophagosome(phago_locs)
                         if AP.area > MIN_AREA:
                             APs.add(AP)
-                            
-                            # Freeze cargo within phagophore
+                            phago_count += 1
                             check_trapped(APs, all_cargo)
-                        
 
                     start_loc, phago_locs = None, None
                     mouse_pressed = False
 
-            # Draw big starting point
-            if start_loc is not None:
-                pg.draw.circle(SCREEN, PHAGO_GREEN_DARK, start_loc, mod(100))
-
             # Draw phagophore
             if phago_locs is not None:
                 if len(phago_locs) > 2:
+                    # Draw outer line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
-                        pg.draw.line(SCREEN, PHAGO_GREEN_DARK, last_loc, loc, mod(23))
+                        pg.draw.circle(SCREEN, PHAGO_LIGHT, (last_loc[0], last_loc[1]), mod(31))
+                        aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))                   
                         last_loc = loc
+
+                    #Draw inner line
+                    last_loc = phago_locs[0]
+                    for loc in phago_locs[1:]:
+                        pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0], last_loc[1]), mod(11))
+                        aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
+                        last_loc = loc
+
+                    # Draw Atg8
+                    # total_dist = 0
+                    # last_loc = phago_locs[0]
+                    # for loc in phago_locs[1:]:
+                    #     total_dist += get_distance(last_loc, loc)
+                    #     if total_dist > ATG8_MIN_DIST:
+
+                    #         # Get starting loc and reciprical slope
+                    #         slope = (loc[1]-last_loc[1])/(loc[0]-last_loc[1])
+                    #         # Fix divide by zero issue
+                    #         if slope == 0:
+                    #             slope = 0.00001
+                    #         recip_slope = -(1/slope)
+                    #         midpoint = ((loc[0]+last_loc[0])/2, (loc[1]+last_loc[1])/2)
+
+                    #         dist = 25
+
+                    #         # Calculate x
+                    #         temp = 1+(recip_slope**2)
+                    #         x = ((dist**2)/temp)**0.5
+                    #         # Calculate y from x and dist using pyythagorean
+                    #         y = (dist**2 - x**2)**0.5
+
+                    #         if slope > 0:
+                    #             outer_atg8 = (midpoint[0]+x, midpoint[1]+y)
+                    #             inner_atg8 = (midpoint[0]-x, midpoint[1]-y)
+                    #         elif slope < 0:
+                    #             outer_atg8 = (midpoint[0]-x, midpoint[1]+y)
+                    #             inner_atg8 = (midpoint[0]+x, midpoint[1]-y)
+
+                    #         pg.draw.circle(SCREEN, YELLOW, outer_atg8, mod(11))
+                    #         pg.draw.circle(SCREEN, YELLOW, inner_atg8, mod(11))
+
+                    #         total_dist = 0
+                    #     last_loc = loc
+
+            # Draw PAS
+            if start_loc is not None:
+                pg.draw.circle(SCREEN, PHAGO_LIGHT, start_loc, mod(100))
+                PAS_label = FONT_4.render(("PAS"), True, (0, 0, 0))
+                text_x, text_y = start_loc
+                SCREEN.blit(PAS_label, (text_x-32, text_y-25))
 
         prev_loc = cur_loc
 
         # Display score
+        score = int(score)
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
         SCREEN.blit(score_text, mod(15, 0))
+
+        # Display phagophore count
+        phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
+        x_pos = (WIDTH - phago_count_text.get_size()[0]) - mod(40)
+        SCREEN.blit(phago_count_text, (x_pos, 0))
 
         # Check for end of game
         if len(good_cargo) < 1:
@@ -374,7 +550,7 @@ def game_loop():
         pg.display.flip()
 
         # Set number of frames per second
-        clock.tick(60)
+        clock.tick(TICKRATE)
 
 intro_screen()
 pg.quit()

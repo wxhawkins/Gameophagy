@@ -6,3 +6,9 @@ notes.txt
 scores/high_scores.json
 source/__pycache__/assets.cpython-38.pyc
 source/__pycache__/misc_functions.cpython-38.pyc
+exe_chamber/source/build/main/PYZ-00.pyz
+*.dll
+*.pyd
+*.pyd
+*.enc
+exe_chamber
