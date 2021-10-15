@@ -23,10 +23,25 @@ WIDTH = 0
 HEIGHT = 0
 MOD = 1
 DIFFICULTY = None
+ribo_image_dict = {}
 
 # Define difficulty scalars
 SPEED_SCALAR = {"Easy": 0.5, "Medium": 1, "Hard": 1.7}
 SCORE_SCALAR = {"Easy": 1, "Medium": 2, "Hard": 3}
+
+ANGLE_LIST = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
+
+def set_ribo_dict():
+    global ribo_image_dict
+    _ribo = Ribosome()
+    image = pg.image.load(str(DIR_PATH / "images" / "ribo.png")).convert_alpha()
+    image = pg.transform.scale(image, (round(mod(90)), round(mod(90))))
+
+    for angle in range(0, 360):
+        rotated_surface = pg.transform.rotozoom(image, angle, 1)
+        rotated_surface.set_colorkey(BLACK)
+
+        ribo_image_dict[angle] = rotated_surface   
 
 
 class Autophagosome(pg.sprite.Sprite):
@@ -151,7 +166,7 @@ class Cargo(pg.sprite.Sprite):
         self.adjust_box = adjust_box
 
 
-    def rotate(self, old_rect):
+    def rotate(self):
         """ Rotate cargo by angle stored in self.angle. """
 
         rotated_surface = transform.rotozoom(self.image_static, self.angle, 1)
@@ -178,9 +193,7 @@ class Cargo(pg.sprite.Sprite):
             bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
 
             # Constrain to screen and flip velocities
-            rand_angle = 0
-            while rand_angle == 0:
-                rand_angle=random.randrange(-5, 5)
+            rand_angle = random.choice(ANGLE_LIST)
 
             if left < 0:
                 self.rect.left = 0 - delta
@@ -200,8 +213,9 @@ class Cargo(pg.sprite.Sprite):
                 self.angle_rate = rand_angle
 
             # Update angle and rotate cargo
-            self.angle += self.angle_rate
-            self.image, self.rect = self.rotate(old_rect)        
+            self.angle = (self.angle + self.angle_rate) % 360
+            self.image = ribo_image_dict[self.angle]
+            self.rect = self.image.get_rect()
 
             # Determine new x, y coordinates and move cargo
             new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx

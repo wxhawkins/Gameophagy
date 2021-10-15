@@ -46,9 +46,9 @@ PHAGO_DARK = (196, 143, 85)
 TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
-MITO_NUM = 5
-RIBO_NUM = 20
-RNA_NUM = 10
+MITO_NUM = 0 # was 5
+RIBO_NUM = 200 # was 20
+RNA_NUM = 0 # was 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
@@ -110,6 +110,34 @@ def inactivate_buttons(buttons):
             button.active = False
 
 
+def display_page(page):
+    # Create main image object
+    bg = pg.image.load(str(DIR_PATH / "images" / page)).convert()
+    image_aspect = bg.get_width() / bg.get_height()
+    screen_aspect = WIDTH / HEIGHT
+
+    if image_aspect >= screen_aspect:
+        new_width = WIDTH
+        new_height = WIDTH / image_aspect
+    else:
+        new_height = HEIGHT
+        new_width = WIDTH * image_aspect
+
+    bg = pg.transform.scale(bg, (int(new_width), int(new_height)))
+
+    back_button = Button(mod(1580), mod(30), mod(250), mod(105), FONT_3, "Back", callback_=intro_screen)
+
+    while True:
+        SCREEN.blit(bg, (0, 0))
+    
+        for event in pg.event.get():
+            exit_check(event)
+            back_button.handle_event(event, DIFFICULTY)
+
+        back_button.draw(SCREEN)
+        pg.display.flip()
+
+
 def intro_screen():
     """ Show introduciton screen and acquire difficulty setting. """
 
@@ -123,11 +151,13 @@ def intro_screen():
     pg.display.update()
 
     # Initalize buttons
-    play_button = Button(mod(1580), mod(150), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
-    easy_button = Button(mod(1250), mod(70), mod(180), mod(60), FONT_4, "Easy", toggle_=True)
-    med_button = Button(mod(1450), mod(70), mod(180), mod(60), FONT_4, "Medium", toggle_=True)
-    hard_button = Button(mod(1650), mod(70), mod(180), mod(60), FONT_4, "Hard", toggle_=True)
-    buttons = [play_button, easy_button, med_button, hard_button]
+    instruct_button = Button(mod(1250), mod(70), mod(280), mod(60), FONT_4, "Instructions", callback_=display_page, page="full_background.png")
+    sci_button = Button(mod(1550), mod(70), mod(280), mod(60), FONT_4, "Science", callback_=display_page, page="full_background.png")
+    easy_button = Button(mod(1250), mod(150), mod(180), mod(60), FONT_4, "Easy", toggle_=True)
+    med_button = Button(mod(1450), mod(150), mod(180), mod(60), FONT_4, "Medium", toggle_=True)
+    hard_button = Button(mod(1650), mod(150), mod(180), mod(60), FONT_4, "Hard", toggle_=True)
+    play_button = Button(mod(1580), mod(230), mod(250), mod(105), FONT_3, "Play", callback_=game_loop)
+    buttons = [instruct_button, sci_button, easy_button, med_button, hard_button, play_button]
 
     # Initalize difficulty
     global DIFFICULTY
@@ -192,7 +222,7 @@ def end_screen(score):
     bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
     bg = pg.transform.scale(bg, (WIDTH, HEIGHT))
 
-    final_score_text = FONT_3.render(("Final Score: " + str(score)), True, (0, 0, 0))
+    final_score_text = FONT_2.render(("Final Score: " + str(score)), True, (0, 0, 0))
 
     # Sort high scores
     score_list = sorted(score_list, key=lambda x: int(round(float(x["score"]))), reverse=True)
@@ -343,10 +373,12 @@ def aaline(surface, color, start_pos, end_pos, width=1):
 # def reverse_pythag(slope, hyp):
 
 
-
 def game_loop():
     """ Initialize and run game loop. """
+
     assets.set_globs(d=DIFFICULTY)
+
+    assets.set_ribo_dict()
 
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))
@@ -486,42 +518,6 @@ def game_loop():
                         aaline(SCREEN, PHAGO_DARK, last_loc, loc, mod(23))                     
                         last_loc = loc
 
-                    # Draw Atg8
-                    # total_dist = 0
-                    # last_loc = phago_locs[0]
-                    # for loc in phago_locs[1:]:
-                    #     total_dist += get_distance(last_loc, loc)
-                    #     if total_dist > ATG8_MIN_DIST:
-
-                    #         # Get starting loc and reciprical slope
-                    #         slope = (loc[1]-last_loc[1])/(loc[0]-last_loc[1])
-                    #         # Fix divide by zero issue
-                    #         if slope == 0:
-                    #             slope = 0.00001
-                    #         recip_slope = -(1/slope)
-                    #         midpoint = ((loc[0]+last_loc[0])/2, (loc[1]+last_loc[1])/2)
-
-                    #         dist = 25
-
-                    #         # Calculate x
-                    #         temp = 1+(recip_slope**2)
-                    #         x = ((dist**2)/temp)**0.5
-                    #         # Calculate y from x and dist using pyythagorean
-                    #         y = (dist**2 - x**2)**0.5
-
-                    #         if slope > 0:
-                    #             outer_atg8 = (midpoint[0]+x, midpoint[1]+y)
-                    #             inner_atg8 = (midpoint[0]-x, midpoint[1]-y)
-                    #         elif slope < 0:
-                    #             outer_atg8 = (midpoint[0]-x, midpoint[1]+y)
-                    #             inner_atg8 = (midpoint[0]+x, midpoint[1]-y)
-
-                    #         pg.draw.circle(SCREEN, YELLOW, outer_atg8, mod(11))
-                    #         pg.draw.circle(SCREEN, YELLOW, inner_atg8, mod(11))
-
-                    #         total_dist = 0
-                    #     last_loc = loc
-
             # Draw PAS
             if start_loc is not None:
                 pg.draw.circle(SCREEN, PHAGO_LIGHT, start_loc, mod(100))
@@ -535,6 +531,11 @@ def game_loop():
         score = int(score)
         score_text = FONT_3.render(str(score), True, (0, 0, 0))
         SCREEN.blit(score_text, mod(15, 0))
+        
+        # FPS counter
+        fps = str(int(clock.get_fps()))
+        fps_text = FONT_3.render(fps, True, (0, 0, 0))
+        SCREEN.blit(fps_text, (500, 10))
 
         # Display phagophore count
         phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
