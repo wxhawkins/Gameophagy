@@ -46,9 +46,9 @@ PHAGO_DARK = (196, 143, 85)
 TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
-MITO_NUM = 0 # was 5
-RIBO_NUM = 200 # was 20
-RNA_NUM = 0 # was 10
+MITO_NUM = 5 #default 5
+RIBO_NUM = 10 #default 20
+RNA_NUM = 10 #default 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
 MISS_PENALTY = 50
@@ -320,7 +320,13 @@ def fission_mito(all_cargo, good_cargo):
 
     # Create mini-mitos
     for _ in range(2):
+        if round(main_mito.image_static.get_width()) == (Mitochondrion().image_static.get_width()):
+            image_dict = assets.MITO_MED_IMAGES
+        else:
+            image_dict = assets.MITO_SMALL_IMAGES
+       
         _mito = Mitochondrion(
+                image_dict = image_dict,
                 x_dim=main_mito.image_static.get_width()/2, 
                 y_dim=main_mito.image_static.get_height()/2,
                 score_val=main_mito.score_val/2,
@@ -377,8 +383,8 @@ def game_loop():
     """ Initialize and run game loop. """
 
     assets.set_globs(d=DIFFICULTY)
+    assets.set_image_dicts()
 
-    assets.set_ribo_dict()
 
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))

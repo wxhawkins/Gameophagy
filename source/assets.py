@@ -23,7 +23,12 @@ WIDTH = 0
 HEIGHT = 0
 MOD = 1
 DIFFICULTY = None
-ribo_image_dict = {}
+PILL_IMAGES = {}
+RIBO_IMAGES = {}
+RNA_IMAGES = {}
+MITO_LARGE_IMAGES = {}
+MITO_MED_IMAGES = {}
+MITO_SMALL_IMAGES = {}
 
 # Define difficulty scalars
 SPEED_SCALAR = {"Easy": 0.5, "Medium": 1, "Hard": 1.7}
@@ -31,17 +36,36 @@ SCORE_SCALAR = {"Easy": 1, "Medium": 2, "Hard": 3}
 
 ANGLE_LIST = [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]
 
-def set_ribo_dict():
-    global ribo_image_dict
-    _ribo = Ribosome()
-    image = pg.image.load(str(DIR_PATH / "images" / "ribo.png")).convert_alpha()
-    image = pg.transform.scale(image, (round(mod(90)), round(mod(90))))
+def set_image_dicts():
+    def get_images(cargo):
+        image = pg.image.load(str(DIR_PATH / "images" / cargo.file_name)).convert_alpha()
+        image = pg.transform.scale(image, (int(cargo.x_dim), int(cargo.y_dim)))
+        image_dict = {}
 
-    for angle in range(0, 360):
-        rotated_surface = pg.transform.rotozoom(image, angle, 1)
-        rotated_surface.set_colorkey(BLACK)
+        for angle in range(0, 360):
+            rotated_surface = pg.transform.rotozoom(image, angle, 1)
+            rotated_surface.set_colorkey(BLACK)
+            image_dict[angle] = rotated_surface
 
-        ribo_image_dict[angle] = rotated_surface   
+        return image_dict
+
+    global PILL_IMAGES
+    global RIBO_IMAGES
+    global RNA_IMAGES
+    global MITO_LARGE_IMAGES
+    global MITO_MED_IMAGES
+    global MITO_SMALL_IMAGES
+
+
+    PILL_IMAGES = get_images(Pill())
+    RIBO_IMAGES = get_images(Ribosome())
+    RNA_IMAGES = get_images(RNA())
+
+    _mito = Mitochondrion()
+    MITO_LARGE_IMAGES = get_images(Mitochondrion())
+    MITO_MED_IMAGES = get_images(Mitochondrion(x_dim=_mito.image_static.get_width()/2, y_dim=_mito.image_static.get_height()/2))
+    MITO_SMALL_IMAGES = get_images(Mitochondrion(x_dim=_mito.image_static.get_width()/4, y_dim=_mito.image_static.get_height()/4))
+
 
 
 class Autophagosome(pg.sprite.Sprite):
@@ -121,6 +145,7 @@ class Cargo(pg.sprite.Sprite):
     def __init__(
         self, 
         file_name, 
+        image_dict,
         x_dim, y_dim, 
         score_val, 
         x_speed_cap, 
@@ -132,6 +157,13 @@ class Cargo(pg.sprite.Sprite):
         adjust_box=False, 
         scale_score=True
         ):
+        
+        print("len =", len(image_dict))
+
+        self.file_name = file_name
+        self.image_dict = image_dict
+        self.x_dim = x_dim
+        self.y_dim = y_dim
 
         super().__init__()
 
@@ -214,7 +246,7 @@ class Cargo(pg.sprite.Sprite):
 
             # Update angle and rotate cargo
             self.angle = (self.angle + self.angle_rate) % 360
-            self.image = ribo_image_dict[self.angle]
+            self.image = self.image_dict[self.angle]
             self.rect = self.image.get_rect()
 
             # Determine new x, y coordinates and move cargo
@@ -227,6 +259,7 @@ class Mitochondrion(Cargo):
     def __init__(
         self, 
         file_name="mito.png", 
+        image_dict=None,
         x_dim=mod(300), 
         y_dim=mod(165), 
         score_val=100, 
@@ -239,13 +272,17 @@ class Mitochondrion(Cargo):
         adjust_box=True,
         scale_score=True
     ):
+        # Mutable defaults are the source of all evil
+        if image_dict is None:
+            image_dict = MITO_LARGE_IMAGES
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box, scale_score)
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box, scale_score)
 
 class Ribosome(Cargo):
     def __init__(
         self, 
         file_name="ribo.png", 
+        image_dict=None,
         x_dim=mod(90), 
         y_dim=mod(90), 
         score_val=50, 
@@ -257,14 +294,18 @@ class Ribosome(Cargo):
         dy=None,
         adjust_box=False
     ):
+        # Mutable defaults are the source of all evil
+        if image_dict is None:
+            image_dict = RIBO_IMAGES
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class RNA(Cargo):
     def __init__(
         self, 
         file_name="rna.png", 
+        image_dict=None,
         x_dim=mod(75), 
         y_dim=mod(300), 
         score_val=150, 
@@ -274,16 +315,20 @@ class RNA(Cargo):
         y=None, 
         dx=None, 
         dy=None,
-        adjust_box=False
+        adjust_box=False        
     ):
+        # Mutable defaults are the source of all evil
+        if image_dict is None:
+            image_dict = RNA_IMAGES
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class Pill(Cargo):
     def __init__(
         self, 
         file_name="pill.png", 
+        image_dict=None,
         x_dim=mod(150), 
         y_dim=mod(75), 
         score_val=-300, 
@@ -296,7 +341,11 @@ class Pill(Cargo):
         adjust_box=False
     ):
 
-        super().__init__(file_name, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+        # Mutable defaults are the source of all evil
+        if image_dict is None:
+            image_dict = PILL_IMAGES
+
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
 
 
 class Button:

@@ -20,3 +20,4 @@
 - Add science page
 - Fix dragging autophagosome off of screen error
 - Update PAS image
+- Make smaller mitochondria faster
