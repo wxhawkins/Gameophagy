@@ -411,7 +411,7 @@ class Button:
         delta = (0.14*self.rect.h) if self.active else 0
         
         text_x = self.rect.x + ((self.rect.w - self.txt_surface.get_width()) / 2)
-        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2) - 5
+        text_y =  self.rect.y + ((self.rect.h - self.txt_surface.get_height()) / 2) - (self.rect.h * 0.1)
         screen.blit(image, self.rect)
         screen.blit(self.txt_surface, (text_x, text_y+delta))
         

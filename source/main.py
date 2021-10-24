@@ -57,6 +57,7 @@ DIFFICULTY = None
 FISSION_THRESH = 1
 ATG8_MIN_DIST = mod(100)
 
+
 # Define fonts
 pg.font.init()
 conthrax_path = str(DIR_PATH / "fonts" / "PermanentMarker-Regular.ttf")
@@ -75,6 +76,8 @@ try:
 except pg.error: # Error sometimes encountered with 4K displays
     SCREEN = pg.display.set_mode((WIDTH, HEIGHT))
 
+icon = pg.image.load(str(DIR_PATH / "images" / "icon.png"))
+pg.display.set_icon(icon)
 
 def check_trapped(APs, items):
     """
@@ -110,31 +113,54 @@ def inactivate_buttons(buttons):
             button.active = False
 
 
-def display_page(page):
-    # Create main image object
-    bg = pg.image.load(str(DIR_PATH / "images" / page)).convert()
-    image_aspect = bg.get_width() / bg.get_height()
-    screen_aspect = WIDTH / HEIGHT
+def display_page(pages):
+    def incriment_page(val):
+        nonlocal cur_page
+        cur_page += val
+    
+        if cur_page < 0:
+            cur_page = 0
+        if cur_page >= len(images):
+            cur_page = len(images) - 1
 
-    if image_aspect >= screen_aspect:
-        new_width = WIDTH
-        new_height = WIDTH / image_aspect
-    else:
-        new_height = HEIGHT
-        new_width = WIDTH * image_aspect
+    images = []
+    for page in pages:
+        # Create main image object
+        image = pg.image.load(str(DIR_PATH / "images" / page)).convert()
+        image_aspect = round(image.get_width() / image.get_height(), 3)
+        screen_aspect = round(WIDTH / HEIGHT, 3)
 
-    bg = pg.transform.scale(bg, (int(new_width), int(new_height)))
+        if image_aspect >= screen_aspect:
+            new_width = WIDTH
+            new_height = WIDTH / image_aspect
+        else:
+            new_height = HEIGHT
+            new_width = HEIGHT * image_aspect
 
-    back_button = Button(mod(1580), mod(30), mod(250), mod(105), FONT_3, "Back", callback_=intro_screen)
+        image = pg.transform.scale(image, (int(new_width), int(new_height)))
+        images.append(image)
+
+    home_button = Button(mod(1580), mod(30), mod(250), mod(105), FONT_3, "Home", callback_=intro_screen)
+    back_button = Button(mod(1500), images[0].get_height()-mod(100), mod(180), mod(60), FONT_4, "Back", callback_=incriment_page, val=-1)
+    next_button = Button(mod(1700), images[0].get_height()-mod(100), mod(180), mod(60), FONT_4, "Next", callback_=incriment_page, val=1)
+
+    cur_page = 0
 
     while True:
-        SCREEN.blit(bg, (0, 0))
+        SCREEN.blit(images[cur_page], (0, 0))
+
     
         for event in pg.event.get():
             exit_check(event)
-            back_button.handle_event(event, DIFFICULTY)
+            home_button.handle_event(event)
+            back_button.handle_event(event)
+            next_button.handle_event(event)
 
+               
+        home_button.draw(SCREEN)
         back_button.draw(SCREEN)
+        next_button.draw(SCREEN)
+
         pg.display.flip()
 
 
@@ -151,8 +177,8 @@ def intro_screen():
     pg.display.update()
 
     # Initalize buttons
-    instruct_button = Button(mod(1250), mod(70), mod(280), mod(60), FONT_4, "Instructions", callback_=display_page, page="full_background.png")
-    sci_button = Button(mod(1550), mod(70), mod(280), mod(60), FONT_4, "Science", callback_=display_page, page="full_background.png")
+    instruct_button = Button(mod(1250), mod(70), mod(280), mod(60), FONT_4, "Instructions", callback_=display_page, pages=["instructions.png"])
+    sci_button = Button(mod(1550), mod(70), mod(280), mod(60), FONT_4, "Science", callback_=display_page, pages=["science_1.png", "science_2.png", "science_3.png"])
     easy_button = Button(mod(1250), mod(150), mod(180), mod(60), FONT_4, "Easy", toggle_=True)
     med_button = Button(mod(1450), mod(150), mod(180), mod(60), FONT_4, "Medium", toggle_=True)
     hard_button = Button(mod(1650), mod(150), mod(180), mod(60), FONT_4, "Hard", toggle_=True)
@@ -415,6 +441,7 @@ def game_loop():
     while running:      
 
         SCREEN.blit(game_bg, (0, 0))
+        # SCREEN.fill(BACKGROUND_BLUE)
 
         # Allow for closing
         for event in pg.event.get():
