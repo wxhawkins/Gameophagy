@@ -91,7 +91,7 @@ class Autophagosome(pg.sprite.Sprite):
         self.radius = round(rad)
 
         # Establish appearance of AP
-        AP_dim = round((self.radius * 2) * 1.2)
+        AP_dim = round((self.radius * 2) * 1.4)
         self.image = pg.image.load(str(DIR_PATH / "images" / "AP.png")).convert()
         self.image = pg.transform.scale(self.image, (AP_dim, AP_dim))
         self.image.set_colorkey(BLACK)

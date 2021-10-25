@@ -47,7 +47,7 @@ TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5 #default 5
-RIBO_NUM = 10 #default 20
+RIBO_NUM = 20 #default 20
 RNA_NUM = 10 #default 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
@@ -156,10 +156,10 @@ def display_page(pages):
             back_button.handle_event(event)
             next_button.handle_event(event)
 
-               
-        home_button.draw(SCREEN)
-        back_button.draw(SCREEN)
-        next_button.draw(SCREEN)
+        if len(images) > 1:
+            home_button.draw(SCREEN)
+            back_button.draw(SCREEN)
+            next_button.draw(SCREEN)
 
         pg.display.flip()
 
@@ -348,14 +348,18 @@ def fission_mito(all_cargo, good_cargo):
     for _ in range(2):
         if round(main_mito.image_static.get_width()) == (Mitochondrion().image_static.get_width()):
             image_dict = assets.MITO_MED_IMAGES
+            speed_cap = 10
         else:
             image_dict = assets.MITO_SMALL_IMAGES
+            speed_cap = 15
        
         _mito = Mitochondrion(
                 image_dict = image_dict,
                 x_dim=main_mito.image_static.get_width()/2, 
                 y_dim=main_mito.image_static.get_height()/2,
                 score_val=main_mito.score_val/2,
+                x_speed_cap=speed_cap,
+                y_speed_cap=speed_cap,
                 x=main_mito.rect.center[0]-(main_mito.image_static.get_width()/4),
                 y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4),
                 scale_score=False
