@@ -30,7 +30,7 @@ MOD = round(WIDTH / 1920, 3) # Standardize to 1920x1080 resolution
 misc_functions.set_globs(w=WIDTH, h=HEIGHT,m=MOD)
 
 import assets
-from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill
+from assets import Autophagosome, Button, Mitochondrion, Ribosome, RNA, Pill, Particle
 
 assets.set_globs(w=WIDTH, h=HEIGHT, m=MOD)
 
@@ -47,7 +47,7 @@ TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5 #default 5
-RIBO_NUM = 20 #default 20
+RIBO_NUM = 10 #default 20
 RNA_NUM = 10 #default 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
@@ -102,6 +102,7 @@ def purge_cargo(all_sprites_group):
             score_change += sprite.score_val
             sprite.kill()
 
+
     return score_change
 
 
@@ -118,6 +119,7 @@ def display_page(pages):
         nonlocal cur_page
         cur_page += val
     
+        # Handle out of bounds
         if cur_page < 0:
             cur_page = 0
         if cur_page >= len(images):
@@ -137,8 +139,7 @@ def display_page(pages):
             new_height = HEIGHT
             new_width = HEIGHT * image_aspect
 
-        # image = pg.transform.scale(image, (int(new_width), int(new_height)))
-        image = pg.transform.scale(image, (int(WIDTH), int(HEIGHT)))
+        image = pg.transform.scale(image, (int(new_width), int(new_height)))
         images.append(image)
 
     home_button = Button(mod(1580), mod(30), mod(250), mod(105), FONT_3, "Home", callback_=intro_screen)
@@ -156,10 +157,13 @@ def display_page(pages):
             home_button.handle_event(event)
             back_button.handle_event(event)
             next_button.handle_event(event)
+               
+        home_button.draw(SCREEN)
 
-        if len(images) > 1:
-            home_button.draw(SCREEN)
+        if cur_page > 0:
             back_button.draw(SCREEN)
+
+        if cur_page < (len(images) - 1):
             next_button.draw(SCREEN)
 
         pg.display.flip()
@@ -291,7 +295,6 @@ def exit_check(event):
         pg.quit()
         sys.exit()
 
-
 def spawn_cargo():
     """ Add cargo to game. """
     
@@ -349,18 +352,14 @@ def fission_mito(all_cargo, good_cargo):
     for _ in range(2):
         if round(main_mito.image_static.get_width()) == (Mitochondrion().image_static.get_width()):
             image_dict = assets.MITO_MED_IMAGES
-            speed_cap = 10
         else:
             image_dict = assets.MITO_SMALL_IMAGES
-            speed_cap = 15
        
         _mito = Mitochondrion(
                 image_dict = image_dict,
                 x_dim=main_mito.image_static.get_width()/2, 
                 y_dim=main_mito.image_static.get_height()/2,
                 score_val=main_mito.score_val/2,
-                x_speed_cap=speed_cap,
-                y_speed_cap=speed_cap,
                 x=main_mito.rect.center[0]-(main_mito.image_static.get_width()/4),
                 y=main_mito.rect.center[1]-(main_mito.image_static.get_height()/4),
                 scale_score=False
@@ -406,8 +405,14 @@ def aaline(surface, color, start_pos, end_pos, width=1):
     pg.gfxdraw.aapolygon(surface, (ul, ur, br, bl), color)
     pg.gfxdraw.filled_polygon(surface, (ul, ur, br, bl), color)
 
+# Cause an explosion of particles whenever an AP is destoryed
+# def explode(all_cargo, AP):
+#     for _ in range(10):
+#         particle = Particle(x=2000,y=200,dx=-2,dy=0)
+#         particle.bound = False
+#         all_cargo.add(particle)
+#     return all_cargo
 
-# def reverse_pythag(slope, hyp):
 
 
 def game_loop():
@@ -441,6 +446,10 @@ def game_loop():
     # Add background
     game_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
     game_bg = pg.transform.scale(game_bg, (WIDTH, HEIGHT))
+    PAS_image = pg.image.load(str(DIR_PATH / "images" / "PAS.png")).convert()
+    PAS_image = pg.transform.scale(PAS_image, (mod(210), mod(210)))
+    PAS_image.set_colorkey(BLACK)
+
 
     # Main game loop
     while running:      
@@ -473,12 +482,14 @@ def game_loop():
 
         # Handle AP acceleration due to mouse dragging
         for AP in APs:
+            dead_AP = AP
             AP.handle_event(event, prev_loc, cur_loc)
             AP.update(SCREEN)
             AP.draw(SCREEN)
 
             # Purge cargo sprites if AP has left screen
             if len(APs) == 0:
+                all_cargo = explode(all_cargo, dead_AP)
                 score += purge_cargo(all_cargo)
 
         # Update cargo on screen
@@ -558,7 +569,10 @@ def game_loop():
 
             # Draw PAS
             if start_loc is not None:
-                pg.draw.circle(SCREEN, PHAGO_LIGHT, start_loc, mod(100))
+                # Define function to get image print location based on click location
+                shift = lambda x, y: (x-mod(105), y-mod(105))
+                SCREEN.blit(PAS_image, shift(*start_loc))
+                # pg.draw.circle(SCREEN, PHAGO_LIGHT, start_loc, mod(100))
                 PAS_label = FONT_4.render(("PAS"), True, (0, 0, 0))
                 text_x, text_y = start_loc
                 SCREEN.blit(PAS_label, (text_x-32, text_y-25))

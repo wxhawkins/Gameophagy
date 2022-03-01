@@ -91,7 +91,7 @@ class Autophagosome(pg.sprite.Sprite):
         self.radius = round(rad)
 
         # Establish appearance of AP
-        AP_dim = round((self.radius * 2) * 1.4)
+        AP_dim = round((self.radius * 2) * 1.2)
         self.image = pg.image.load(str(DIR_PATH / "images" / "AP.png")).convert()
         self.image = pg.transform.scale(self.image, (AP_dim, AP_dim))
         self.image.set_colorkey(BLACK)
@@ -158,7 +158,6 @@ class Cargo(pg.sprite.Sprite):
         scale_score=True
         ):
         
-        print("len =", len(image_dict))
 
         self.file_name = file_name
         self.image_dict = image_dict
@@ -193,6 +192,7 @@ class Cargo(pg.sprite.Sprite):
             self.dy = dy if dy is not None else random.randrange(-self.dy_cap, self.dy_cap + 1)
 
         self.trapped = False
+        self.bound = True
         self.score_val = score_val * SCORE_SCALAR[DIFFICULTY] if scale_score else score_val
 
         self.adjust_box = adjust_box
@@ -224,35 +224,36 @@ class Cargo(pg.sprite.Sprite):
             top = self.rect.top if not self.adjust_box else self.rect.top + delta
             bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
 
-            # Constrain to screen and flip velocities
-            rand_angle = random.choice(ANGLE_LIST)
+            if self.bound:
+                # Constrain to screen and flip velocities
+                rand_angle = random.choice(ANGLE_LIST)
 
-            if left < 0:
-                self.rect.left = 0 - delta
-                self.dx = -(self.dx)
-                self.angle_rate = rand_angle
-            if right > WIDTH:
-                self.rect.right = WIDTH + delta
-                self.dx = -(self.dx)
-                self.angle_rate = rand_angle
-            if top < 0:
-                self.rect.top = 0 - delta
-                self.dy = -(self.dy)
-                self.angle_rate = rand_angle
-            if bottom > HEIGHT:
-                self.rect.bottom = HEIGHT + delta
-                self.dy = -(self.dy)
-                self.angle_rate = rand_angle
+                if left < 0:
+                    self.rect.left = 0 - delta
+                    self.dx = -(self.dx)
+                    self.angle_rate = rand_angle
+                if right > WIDTH:
+                    self.rect.right = WIDTH + delta
+                    self.dx = -(self.dx)
+                    self.angle_rate = rand_angle
+                if top < 0:
+                    self.rect.top = 0 - delta
+                    self.dy = -(self.dy)
+                    self.angle_rate = rand_angle
+                if bottom > HEIGHT:
+                    self.rect.bottom = HEIGHT + delta
+                    self.dy = -(self.dy)
+                    self.angle_rate = rand_angle
 
-            # Update angle and rotate cargo
-            self.angle = (self.angle + self.angle_rate) % 360
-            self.image = self.image_dict[self.angle]
-            self.rect = self.image.get_rect()
+                # Update angle and rotate cargo
+                self.angle = (self.angle + self.angle_rate) % 360
+                self.image = self.image_dict[self.angle]
+                self.rect = self.image.get_rect()
 
-            # Determine new x, y coordinates and move cargo
-            new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx
-            new_y = old_rect.y + ((old_rect.height - self.rect.height) / 2) + self.dy
-            self.rect.move_ip(new_x, new_y)    
+                # Determine new x, y coordinates and move cargo
+                new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx
+                new_y = old_rect.y + ((old_rect.height - self.rect.height) / 2) + self.dy
+                self.rect.move_ip(new_x, new_y)    
 
 
 class Mitochondrion(Cargo):
@@ -346,6 +347,30 @@ class Pill(Cargo):
             image_dict = PILL_IMAGES
 
         super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+
+class Particle(Cargo):
+    def __init__(
+        self, 
+        file_name="pill.png", 
+        image_dict=None,
+        x_dim=mod(50), 
+        y_dim=mod(25), 
+        score_val=0, 
+        x_speed_cap=mod(4), 
+        y_speed_cap=mod(4), 
+        x=None, 
+        y=None, 
+        dx=None, 
+        dy=None,
+        adjust_box=False
+    ):
+
+        # Mutable defaults are the source of all evil
+        if image_dict is None:
+            image_dict = PILL_IMAGES
+
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
+
 
 
 class Button:

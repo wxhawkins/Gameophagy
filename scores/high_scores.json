@@ -5,748 +5,93 @@
         "date": "6/27/2020"
     },
     {
-        "score": "1300",
+        "score": 0,
         "difficulty": "Easy",
-        "date": "6/27/2020"
+        "date": "1/22/2022"
     },
     {
-        "score": "5800",
-        "difficulty": "Medium",
-        "date": "8/18/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/18/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/18/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/18/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "4600",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "1950",
+        "score": 2500,
         "difficulty": "Easy",
-        "date": "8/20/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": "0",
+        "score": 5000,
+        "difficulty": "Medium",
+        "date": "1/22/2022"
+    },
+    {
+        "score": 0,
         "difficulty": "Hard",
-        "date": "8/20/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
+        "score": 6100,
         "difficulty": "Hard",
-        "date": "8/20/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": "3050",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "2200",
+        "score": 2500,
         "difficulty": "Easy",
-        "date": "8/20/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": "0",
+        "score": 5000,
         "difficulty": "Medium",
-        "date": "8/20/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": "0",
+        "score": 4850,
         "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "4800",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "400",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Hard",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "4350",
-        "difficulty": "Medium",
-        "date": "8/20/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Easy",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "4800",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "4600",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "2750",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": "0",
-        "difficulty": "Medium",
-        "date": "9/12/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/4/2021"
+        "date": "1/22/2022"
     },
     {
         "score": 5350,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 3000,
-        "difficulty": "Easy",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/4/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 4800,
-        "difficulty": "Medium",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 6000,
-        "difficulty": "Medium",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 2700,
-        "difficulty": "Easy",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/8/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/9/2021"
-    },
-    {
-        "score": 2900,
-        "difficulty": "Easy",
-        "date": "10/9/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/9/2021"
-    },
-    {
-        "score": 2700,
-        "difficulty": "Easy",
-        "date": "10/13/2021"
-    },
-    {
-        "score": 6000,
-        "difficulty": "Medium",
-        "date": "10/13/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/13/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/13/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "10/13/2021"
-    },
-    {
-        "score": 3000,
-        "difficulty": "Easy",
-        "date": "10/14/2021"
-    },
-    {
-        "score": 8000,
         "difficulty": "Hard",
-        "date": "10/14/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/15/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/16/2021"
-    },
-    {
-        "score": 0,
+        "score": 5300,
         "difficulty": "Hard",
-        "date": "10/16/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": 14000,
+        "score": 4950,
         "difficulty": "Medium",
-        "date": "10/16/2021"
+        "date": "1/22/2022"
     },
     {
-        "score": 4400,
-        "difficulty": "Medium",
-        "date": "10/16/2021"
-    },
-    {
-        "score": 4400,
-        "difficulty": "Medium",
-        "date": "10/16/2021"
-    },
-    {
-        "score": 6150,
-        "difficulty": "Hard",
-        "date": "10/16/2021"
-    },
-    {
-        "score": 2450,
+        "score": 2400,
         "difficulty": "Easy",
-        "date": "10/25/2021"
-    },
-    {
-        "score": 2500,
-        "difficulty": "Easy",
-        "date": "10/25/2021"
-    },
-    {
-        "score": 2500,
-        "difficulty": "Easy",
-        "date": "10/25/2021"
+        "date": "1/22/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "10/25/2021"
+        "date": "1/22/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "10/25/2021"
+        "date": "1/22/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "10/25/2021"
-    },
-    {
-        "score": 7600,
-        "difficulty": "Hard",
-        "date": "10/25/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "10/25/2021"
-    },
-    {
-        "score": 3000,
-        "difficulty": "Easy",
-        "date": "12/14/2021"
-    },
-    {
-        "score": 3000,
-        "difficulty": "Easy",
-        "date": "12/16/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Medium",
-        "date": "12/16/2021"
-    },
-    {
-        "score": 2950,
-        "difficulty": "Easy",
-        "date": "12/16/2021"
+        "date": "1/23/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "12/16/2021"
+        "date": "1/23/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "12/16/2021"
+        "date": "1/23/2022"
     },
     {
         "score": 0,
         "difficulty": "Easy",
-        "date": "12/16/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "12/16/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "12/16/2021"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "2/28/2022"
-    },
-    {
-        "score": 2900,
-        "difficulty": "Easy",
-        "date": "2/28/2022"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "2/28/2022"
-    },
-    {
-        "score": 0,
-        "difficulty": "Easy",
-        "date": "2/28/2022"
+        "date": "1/23/2022"
     }
 ]
