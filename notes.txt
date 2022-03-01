@@ -14,10 +14,10 @@
 		- Update cargo models
 - Optimize (pygame.sprite.collide_circle())
 - Add loading message to Gameophagy.cmd
-- Add Atg8
+	- Add Atg8
 	- If circle is complete but mouse not released, still make autophagosome
-- Add instructions page
-- Add science page
+	- Add instructions page
+	- Add science page
 - Fix dragging autophagosome off of screen error
 - Update PAS image
-- Make smaller mitochondria faster
+	- Make smaller mitochondria faster

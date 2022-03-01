@@ -137,7 +137,8 @@ def display_page(pages):
             new_height = HEIGHT
             new_width = HEIGHT * image_aspect
 
-        image = pg.transform.scale(image, (int(new_width), int(new_height)))
+        # image = pg.transform.scale(image, (int(new_width), int(new_height)))
+        image = pg.transform.scale(image, (int(WIDTH), int(HEIGHT)))
         images.append(image)
 
     home_button = Button(mod(1580), mod(30), mod(250), mod(105), FONT_3, "Home", callback_=intro_screen)
