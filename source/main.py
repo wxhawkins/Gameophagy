@@ -489,7 +489,7 @@ def game_loop():
 
             # Purge cargo sprites if AP has left screen
             if len(APs) == 0:
-                all_cargo = explode(all_cargo, dead_AP)
+                # all_cargo = explode(all_cargo, dead_AP)
                 score += purge_cargo(all_cargo)
 
         # Update cargo on screen

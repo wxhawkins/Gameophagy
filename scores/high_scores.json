@@ -93,5 +93,20 @@
         "score": 0,
         "difficulty": "Easy",
         "date": "1/23/2022"
+    },
+    {
+        "score": 2500,
+        "difficulty": "Easy",
+        "date": "3/1/2022"
+    },
+    {
+        "score": 2450,
+        "difficulty": "Easy",
+        "date": "3/1/2022"
+    },
+    {
+        "score": 0,
+        "difficulty": "Easy",
+        "date": "3/1/2022"
     }
 ]
