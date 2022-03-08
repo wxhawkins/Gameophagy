@@ -26,6 +26,7 @@ DIFFICULTY = None
 PILL_IMAGES = {}
 RIBO_IMAGES = {}
 RNA_IMAGES = {}
+PARTICLE_IMAGES = {}
 MITO_LARGE_IMAGES = {}
 MITO_MED_IMAGES = {}
 MITO_SMALL_IMAGES = {}
@@ -52,6 +53,7 @@ def set_image_dicts():
     global PILL_IMAGES
     global RIBO_IMAGES
     global RNA_IMAGES
+    global PARTICLE_IMAGES
     global MITO_LARGE_IMAGES
     global MITO_MED_IMAGES
     global MITO_SMALL_IMAGES
@@ -60,6 +62,7 @@ def set_image_dicts():
     PILL_IMAGES = get_images(Pill())
     RIBO_IMAGES = get_images(Ribosome())
     RNA_IMAGES = get_images(RNA())
+    PARTICLE_IMAGES = get_images(Particle())
 
     _mito = Mitochondrion()
     MITO_LARGE_IMAGES = get_images(Mitochondrion())
@@ -155,7 +158,8 @@ class Cargo(pg.sprite.Sprite):
         dx=None, 
         dy=None, 
         adjust_box=False, 
-        scale_score=True
+        scale_score=True,
+        bound=True
         ):
         
 
@@ -192,10 +196,10 @@ class Cargo(pg.sprite.Sprite):
             self.dy = dy if dy is not None else random.randrange(-self.dy_cap, self.dy_cap + 1)
 
         self.trapped = False
-        self.bound = True
         self.score_val = score_val * SCORE_SCALAR[DIFFICULTY] if scale_score else score_val
 
         self.adjust_box = adjust_box
+        self.bound = bound
 
 
     def rotate(self):
@@ -245,16 +249,15 @@ class Cargo(pg.sprite.Sprite):
                     self.dy = -(self.dy)
                     self.angle_rate = rand_angle
 
-                # Update angle and rotate cargo
-                self.angle = (self.angle + self.angle_rate) % 360
-                self.image = self.image_dict[self.angle]
-                self.rect = self.image.get_rect()
+            # Update angle and rotate cargo
+            self.angle = (self.angle + self.angle_rate) % 360
+            self.image = self.image_dict[self.angle]
+            self.rect = self.image.get_rect()
 
-                # Determine new x, y coordinates and move cargo
-                new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx
-                new_y = old_rect.y + ((old_rect.height - self.rect.height) / 2) + self.dy
-                self.rect.move_ip(new_x, new_y)    
-
+            # Determine new x, y coordinates and move cargo
+            new_x = old_rect.x + ((old_rect.width - self.rect.width) / 2) + self.dx
+            new_y = old_rect.y + ((old_rect.height - self.rect.height) / 2) + self.dy
+            self.rect.move_ip(new_x, new_y)    
 
 class Mitochondrion(Cargo):
     def __init__(
@@ -351,26 +354,26 @@ class Pill(Cargo):
 class Particle(Cargo):
     def __init__(
         self, 
-        file_name="pill.png", 
+        file_name="particle.png", 
         image_dict=None,
         x_dim=mod(50), 
-        y_dim=mod(25), 
-        score_val=0, 
+        y_dim=mod(50), 
+        score_val=10, 
         x_speed_cap=mod(4), 
         y_speed_cap=mod(4), 
         x=None, 
         y=None, 
         dx=None, 
         dy=None,
-        adjust_box=False
+        adjust_box=False,
+        bound=False
     ):
 
         # Mutable defaults are the source of all evil
         if image_dict is None:
-            image_dict = PILL_IMAGES
+            image_dict = PARTICLE_IMAGES
 
-        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box)
-
+        super().__init__(file_name, image_dict, x_dim, y_dim, score_val, x_speed_cap, y_speed_cap, x, y, dx, dy, adjust_box, bound=bound)
 
 
 class Button:

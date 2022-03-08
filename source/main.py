@@ -93,12 +93,12 @@ def check_trapped(APs, items):
                 AP.contents.append(item)
 
 
-def purge_cargo(all_sprites_group):
+def purge_cargo(all_sprites_group, buffer=0):
     """ Kill captured sprites and update score accordingly. """
 
     score_change = 0
     for sprite in all_sprites_group:
-        if not in_bounds(WIDTH, HEIGHT, sprite):
+        if not in_bounds(WIDTH, HEIGHT, sprite, buffer):
             score_change += sprite.score_val
             sprite.kill()
 
@@ -301,6 +301,7 @@ def spawn_cargo():
     # Initalize sprite groups
     all_cargo = pg.sprite.Group()
     good_cargo = pg.sprite.Group()
+    particle_cargo = pg.sprite.Group()
 
     # Generate mitochondria
     for _ in range(MITO_NUM):
@@ -320,7 +321,7 @@ def spawn_cargo():
         all_cargo.add(_rna)
         good_cargo.add(_rna)
 
-    return all_cargo, good_cargo
+    return all_cargo, good_cargo, particle_cargo
 
 
 def fission_mito(all_cargo, good_cargo):
@@ -413,6 +414,40 @@ def aaline(surface, color, start_pos, end_pos, width=1):
 #         all_cargo.add(particle)
 #     return all_cargo
 
+def spawn_particles(particle_cargo, AP):
+    speed_cap = 10
+
+    center = AP.rect.center
+    radius = 0.5 * Particle().x_dim
+    x = center[0] - radius
+    y = center[1] - radius
+    d_mod = max([abs(AP.dx), abs(AP.dy)]) / speed_cap
+
+    print(f"ori velocity = {AP.dx}, {AP.dy}")
+
+    mod_dx = round(AP.dx / d_mod, 1)
+    mod_dy = round(AP.dy / d_mod, 1)
+
+    if mod_dx == 0:
+        mod_dx += 0.1 * (-1**random.randrange(1, 2))
+
+    if mod_dy == 0:
+        mod_dy += 0.1 * (-1**random.randrange(1, 2))
+
+
+    print(f"mod velocity = {mod_dx}, {mod_dy}")
+
+    num_particles = len(AP.contents) * 3
+
+    # Generate Particles
+    for _ in range(num_particles):
+        dx = -mod_dx * (random.randrange(50, 150) / 100)
+        dy = -mod_dy * (random.randrange(50, 150) / 100)
+
+        _particle = Particle(x=x, y=y, dx=dx, dy=dy)
+        particle_cargo.add(_particle)
+
+    return particle_cargo
 
 
 def game_loop():
@@ -441,7 +476,7 @@ def game_loop():
 
     # Initialize sprite groups
     APs = pg.sprite.Group()
-    all_cargo, good_cargo = spawn_cargo()
+    all_cargo, good_cargo, particle_cargo = spawn_cargo()
 
     # Add background
     game_bg = pg.image.load(str(DIR_PATH / "images" / "full_background.png")).convert()
@@ -491,8 +526,11 @@ def game_loop():
             if len(APs) == 0:
                 # all_cargo = explode(all_cargo, dead_AP)
                 score += purge_cargo(all_cargo)
+                particle_cargo = spawn_particles(particle_cargo, dead_AP)
 
         # Update cargo on screen
+        particle_cargo.update()
+        particle_cargo.draw(SCREEN)
         all_cargo.update()
         all_cargo.draw(SCREEN)
 
@@ -560,7 +598,7 @@ def game_loop():
                         aaline(SCREEN, PHAGO_LIGHT, last_loc, loc, mod(60))                   
                         last_loc = loc
 
-                    #Draw inner line
+                    # Draw inner line
                     last_loc = phago_locs[0]
                     for loc in phago_locs[1:]:
                         pg.draw.circle(SCREEN, PHAGO_DARK, (last_loc[0], last_loc[1]), mod(11))
@@ -585,14 +623,16 @@ def game_loop():
         SCREEN.blit(score_text, mod(15, 0))
         
         # FPS counter
-        fps = str(int(clock.get_fps()))
-        fps_text = FONT_3.render(fps, True, (0, 0, 0))
-        SCREEN.blit(fps_text, (500, 10))
+        # fps = str(int(clock.get_fps()))
+        # fps_text = FONT_3.render(fps, True, (0, 0, 0))
+        # SCREEN.blit(fps_text, (500, 10))
 
         # Display phagophore count
         phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
         x_pos = (WIDTH - phago_count_text.get_size()[0]) - mod(40)
         SCREEN.blit(phago_count_text, (x_pos, 0))
+
+        score += purge_cargo(particle_cargo, buffer=(mod(1000)))
 
         # Check for end of game
         if len(good_cargo) < 1:
