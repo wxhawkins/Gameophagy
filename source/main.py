@@ -79,6 +79,54 @@ except pg.error: # Error sometimes encountered with 4K displays
 icon = pg.image.load(str(DIR_PATH / "images" / "icon.png"))
 pg.display.set_icon(icon)
 
+
+class ParticleProfile:
+    """ Stores key information about particles to be generated. """
+
+    def __init__(self, AP):
+        # Get particle spawn location based on source autophagosome
+        center = AP.rect.center
+        radius = 0.5 * Particle().x_dim
+        self.x = center[0] - radius
+        self.y = center[1] - radius
+
+        # Cap velocity and reverse
+        speed_cap = mod(15)
+        d_mod = max([abs(AP.dx), abs(AP.dy)]) / speed_cap
+        mod_dx = -round(AP.dx / d_mod, 1)
+        mod_dy = -round(AP.dy / d_mod, 1)
+
+        # Make non-zero
+        if mod_dx == 0:
+            mod_dx += 0.1 * (-1**random.randint(1, 2))
+
+        if mod_dy == 0:
+            mod_dy += 0.1 * (-1**random.randint(1, 2))
+
+        self.base_dx = mod_dx
+        self.base_dy = mod_dy
+
+        # Determine number of particles to spawn based on captured cargo
+        num_particles = len(AP.contents) * 6
+
+        self.queue = num_particles
+
+    def spawn(self, num_particles, particle_cargo):
+        """ Generate particles based on particle profile. """
+
+        for _ in range(min(self.queue, num_particles)):
+            # Get unique velocities from base velocity
+            dx = self.base_dx + (random.randint(mod(-300), mod(300)) / 100)
+            dy = self.base_dy + (random.randint(mod(-300), mod(300)) / 100)
+
+            # Generate particle and add to cargo group
+            _particle = Particle(x=self.x, y=self.y, dx=dx, dy=dy)
+            particle_cargo.add(_particle)
+            self.queue -= 1
+        
+        return particle_cargo
+
+
 def check_trapped(APs, items):
     """
         Checks if any cargo items were inside upon AP formation then update
@@ -327,7 +375,7 @@ def spawn_cargo():
 def fission_mito(all_cargo, good_cargo):
     """ Split mitochondrion into two smaller mitochondria. """
 
-    rand = random.randrange(1, 100)
+    rand = random.randint(1, 100)
     if rand >= 15: #15% chance of fission
         return all_cargo, good_cargo
 
@@ -406,49 +454,6 @@ def aaline(surface, color, start_pos, end_pos, width=1):
     pg.gfxdraw.aapolygon(surface, (ul, ur, br, bl), color)
     pg.gfxdraw.filled_polygon(surface, (ul, ur, br, bl), color)
 
-# Cause an explosion of particles whenever an AP is destoryed
-# def explode(all_cargo, AP):
-#     for _ in range(10):
-#         particle = Particle(x=2000,y=200,dx=-2,dy=0)
-#         particle.bound = False
-#         all_cargo.add(particle)
-#     return all_cargo
-
-def spawn_particles(particle_cargo, AP):
-    speed_cap = 10
-
-    center = AP.rect.center
-    radius = 0.5 * Particle().x_dim
-    x = center[0] - radius
-    y = center[1] - radius
-    d_mod = max([abs(AP.dx), abs(AP.dy)]) / speed_cap
-
-    print(f"ori velocity = {AP.dx}, {AP.dy}")
-
-    mod_dx = round(AP.dx / d_mod, 1)
-    mod_dy = round(AP.dy / d_mod, 1)
-
-    if mod_dx == 0:
-        mod_dx += 0.1 * (-1**random.randrange(1, 2))
-
-    if mod_dy == 0:
-        mod_dy += 0.1 * (-1**random.randrange(1, 2))
-
-
-    print(f"mod velocity = {mod_dx}, {mod_dy}")
-
-    num_particles = len(AP.contents) * 3
-
-    # Generate Particles
-    for _ in range(num_particles):
-        dx = -mod_dx * (random.randrange(50, 150) / 100)
-        dy = -mod_dy * (random.randrange(50, 150) / 100)
-
-        _particle = Particle(x=x, y=y, dx=dx, dy=dy)
-        particle_cargo.add(_particle)
-
-    return particle_cargo
-
 
 def game_loop():
     """ Initialize and run game loop. """
@@ -467,6 +472,7 @@ def game_loop():
     phago_locs = None
     start_loc = None
     prev_loc = None
+    particle_profile = None
 
     timer = 1
     tick_count = 0
@@ -522,11 +528,14 @@ def game_loop():
             AP.update(SCREEN)
             AP.draw(SCREEN)
 
-            # Purge cargo sprites if AP has left screen
+            # Purge cargo sprites and generate particle profile if AP has left screen
             if len(APs) == 0:
-                # all_cargo = explode(all_cargo, dead_AP)
                 score += purge_cargo(all_cargo)
-                particle_cargo = spawn_particles(particle_cargo, dead_AP)
+                particle_profile = ParticleProfile(dead_AP)
+
+        # Spawn particles if necessary
+        if particle_profile is not None and particle_profile.queue > 0:
+            particle_cargo = particle_profile.spawn(2, particle_cargo)
 
         # Update cargo on screen
         particle_cargo.update()
@@ -631,8 +640,6 @@ def game_loop():
         phago_count_text = FONT_3.render(str(phago_count), True, (0, 0, 0))
         x_pos = (WIDTH - phago_count_text.get_size()[0]) - mod(40)
         SCREEN.blit(phago_count_text, (x_pos, 0))
-
-        score += purge_cargo(particle_cargo, buffer=(mod(1000)))
 
         # Check for end of game
         if len(good_cargo) < 1:
