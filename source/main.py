@@ -1,16 +1,14 @@
 import ctypes
 import datetime
 import json
-import sys
+import math
 from pathlib import Path
 import random
+import sys
 
 import pygame as pg
 from pygame.locals import *
-
-
-import math
-import pygame.gfxdraw
+from pygame import gfxdraw
 
 # Import personal files
 import misc_functions
@@ -55,8 +53,6 @@ MISS_PENALTY = 50
 MIN_AREA = mod(20000)
 DIFFICULTY = None
 FISSION_THRESH = 1
-ATG8_MIN_DIST = mod(100)
-
 
 # Define fonts
 pg.font.init()
@@ -435,7 +431,7 @@ def fission_mito(all_cargo, good_cargo):
 
 
 def aaline(surface, color, start_pos, end_pos, width=1):
-    """ Draws wide transparent anti-aliased lines. """
+    """ Draws wide anti-aliased lines. """
     # ref https://stackoverflow.com/a/30599392/355230
 
     x0, y0 = start_pos

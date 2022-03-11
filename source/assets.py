@@ -1,10 +1,9 @@
-import random
-import statistics as stats
 import math
 from pathlib import Path
+import random
+import statistics as stats
 
 import pygame as pg
-from pygame import transform
 
 from misc_functions import get_distance, in_bounds, mod, get_delta_length
 
@@ -68,7 +67,6 @@ def set_image_dicts():
     MITO_LARGE_IMAGES = get_images(Mitochondrion())
     MITO_MED_IMAGES = get_images(Mitochondrion(x_dim=_mito.image_static.get_width()/2, y_dim=_mito.image_static.get_height()/2))
     MITO_SMALL_IMAGES = get_images(Mitochondrion(x_dim=_mito.image_static.get_width()/4, y_dim=_mito.image_static.get_height()/4))
-
 
 
 class Autophagosome(pg.sprite.Sprite):
@@ -161,7 +159,6 @@ class Cargo(pg.sprite.Sprite):
         scale_score=True,
         bound=True
         ):
-        
 
         self.file_name = file_name
         self.image_dict = image_dict
@@ -202,15 +199,6 @@ class Cargo(pg.sprite.Sprite):
         self.bound = bound
 
 
-    def rotate(self):
-        """ Rotate cargo by angle stored in self.angle. """
-
-        rotated_surface = transform.rotozoom(self.image_static, self.angle, 1)
-        rotated_surface.set_colorkey(BLACK)
-        rotated_rect = rotated_surface.get_rect()
-        return rotated_surface, rotated_rect
-
-
     def update(self):
         """ Update position and velocity. """
 
@@ -223,12 +211,12 @@ class Cargo(pg.sprite.Sprite):
 
             delta = get_delta_length(self.rect.width, self.angle) if self.adjust_box else 0
 
-            left = self.rect.left if not self.adjust_box else self.rect.left + delta
-            right = self.rect.right if not self.adjust_box else self.rect.right - delta
-            top = self.rect.top if not self.adjust_box else self.rect.top + delta
-            bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
-
             if self.bound:
+                left = self.rect.left if not self.adjust_box else self.rect.left + delta
+                right = self.rect.right if not self.adjust_box else self.rect.right - delta
+                top = self.rect.top if not self.adjust_box else self.rect.top + delta
+                bottom = self.rect.bottom if not self.adjust_box else self.rect.bottom - delta
+
                 # Constrain to screen and flip velocities
                 rand_angle = random.choice(ANGLE_LIST)
 
@@ -249,9 +237,10 @@ class Cargo(pg.sprite.Sprite):
                     self.dy = -(self.dy)
                     self.angle_rate = rand_angle
 
-            # Update angle and rotate cargo
-            self.angle = (self.angle + self.angle_rate) % 360
-            self.image = self.image_dict[self.angle]
+                # Update angle and rotate cargo
+                self.angle = (self.angle + self.angle_rate) % 360
+                self.image = self.image_dict[self.angle]
+
             self.rect = self.image.get_rect()
 
             # Determine new x, y coordinates and move cargo
