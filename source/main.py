@@ -47,7 +47,7 @@ TICKRATE = 60
 GAMETITLE = "Gameophagy"
 HIT_CIRCLE_RADIUS = mod(100)
 MITO_NUM = 5 #default 5
-RIBO_NUM = 10 #default 20
+RIBO_NUM = 20 #default 20
 RNA_NUM = 10 #default 10
 TIMEOUT_THRESH = {"Easy": 240, "Medium": 60, "Hard": 20}
 TIMEOUT_PENALTY = -300
@@ -133,12 +133,23 @@ def check_trapped(APs, items):
         cargo and AP parameters accordingly.
     """
 
+    trapped_cargo = pg.sprite.Group()
+
     for AP in APs:
         for item in items:
-            distance = get_distance(AP.rect.center, item.rect.center)
-            if distance < AP.radius:
+            max_distance = max([
+                get_distance(AP.rect.center, item.rect.topleft),
+                get_distance(AP.rect.center, item.rect.topright),
+                get_distance(AP.rect.center, item.rect.bottomleft),
+                get_distance(AP.rect.center, item.rect.bottomright),
+            ])
+
+            if max_distance < AP.radius:
                 item.trapped = True
                 AP.contents.append(item)
+                trapped_cargo.add(item)
+
+    return trapped_cargo
 
 
 def purge_cargo(all_sprites_group, buffer=0):
@@ -427,7 +438,6 @@ def aaline(surface, color, start_pos, end_pos, width=1):
     """ Draws wide transparent anti-aliased lines. """
     # ref https://stackoverflow.com/a/30599392/355230
 
-
     x0, y0 = start_pos
     x1, y1 = end_pos
     midpnt_x, midpnt_y = (x0+x1)/2, (y0+y1)/2  # Center of line segment.
@@ -461,7 +471,6 @@ def game_loop():
     assets.set_globs(d=DIFFICULTY)
     assets.set_image_dicts()
 
-
     # Initialize internal variables
     score_text = FONT_3.render("0", True, (0, 0, 0))
     score = 0
@@ -482,6 +491,7 @@ def game_loop():
 
     # Initialize sprite groups
     APs = pg.sprite.Group()
+    trapped_cargo = pg.sprite.Group()
     all_cargo, good_cargo, particle_cargo = spawn_cargo()
 
     # Add background
@@ -490,7 +500,6 @@ def game_loop():
     PAS_image = pg.image.load(str(DIR_PATH / "images" / "PAS.png")).convert()
     PAS_image = pg.transform.scale(PAS_image, (mod(210), mod(210)))
     PAS_image.set_colorkey(BLACK)
-
 
     # Main game loop
     while running:      
@@ -518,6 +527,12 @@ def game_loop():
             tick_count = 0
             timer += 1
 
+        # Update cargo and particles on screen
+        particle_cargo.update()
+        particle_cargo.draw(SCREEN)
+        all_cargo.update()
+        all_cargo.draw(SCREEN)
+
         # Store mouse position for current frame
         cur_loc = pg.mouse.get_pos()
 
@@ -537,11 +552,8 @@ def game_loop():
         if particle_profile is not None and particle_profile.queue > 0:
             particle_cargo = particle_profile.spawn(2, particle_cargo)
 
-        # Update cargo on screen
-        particle_cargo.update()
-        particle_cargo.draw(SCREEN)
-        all_cargo.update()
-        all_cargo.draw(SCREEN)
+        # Redraw trapped cargo to bring to front
+        trapped_cargo.draw(SCREEN)
 
         #-----------------------------PHAGOPHORE HANDLING--------------------------
         if len(APs) < 1:
@@ -569,7 +581,7 @@ def game_loop():
                             if AP.area > MIN_AREA:
                                 APs.add(AP)
                                 phago_count += 1
-                                check_trapped(APs, all_cargo)
+                                trapped_cargo = check_trapped(APs, all_cargo)
 
                         timed_out = True
                         start_loc, phago_locs = None, None
@@ -592,7 +604,7 @@ def game_loop():
                         if AP.area > MIN_AREA:
                             APs.add(AP)
                             phago_count += 1
-                            check_trapped(APs, all_cargo)
+                            trapped_cargo = check_trapped(APs, all_cargo)
 
                     start_loc, phago_locs = None, None
                     mouse_pressed = False
