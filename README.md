@@ -1,27 +1,27 @@
 ## Overview
 
-It's a game...about autophagy. Try to catch all of the intracellular cargo in the smallest number of autophagosomes. Why are you trying to degrade *everything*? IDK, man; it's a game made by a grad student without much to do at the start of the pandemic -- don't overthink this.
+It's a game...about autophagy. How has no one thought of this before? Try to catch all of the intracellular cargo in the smallest number of autophagosomes.
 
 Huge shout out to Javiera Balut for creating the art for the introduction page and to Emily Grush for creating all other illustrations in the game.
 
-####  Autophagy
+##  Autophagy
 
-Autophagy is a process carried out inside the cells of everything from humans to yeast (no, those aren't baseballs on the intro page). Things like proteins, RNA molecules and mitochondria are trapped in a bubble-like membrane called an autophagosome and later broken down by enzymes. Prior to the autophagosome closing/completing, it is called a phagophore; this is what you are drawing with your mouse in Gameophagy. See the game's "Science" section for more details about autophagy and cell biology more broad
+Autophagy is a process carried out inside the cells of everything from humans to yeast (no, those aren't baseballs on the intro page). Things like proteins, RNA molecules and mitochondria are trapped in a bubble-like membrane called an autophagosome and later broken down by enzymes. Prior to the autophagosome closing/completing, it is called a phagophore; this is what you are drawing with your mouse in Gameophagy. See the game's "Science" section for more details about autophagy and cell biology more broadly.
 
 ## Getting started
 
-**If you're on Windows**, go to Gameophagy releases and download the most recent Windows version, unzip the files, and click on "Gameophagy.cmd".
-
-**If you're on Mac**, go to Gameophagy releases and download the most recent Mac version, unzip the files, and click on "Run Gamophagy". If you receive an error message, enter your system preferences and select Security and Privacy. Select the padlock to unlock and within General, select "Open Anyway".
+Go to Gameophagy releases and download the most recent version for your operating system. Unzip the file and launch "Gameophagy.cmd".
 
 
+**On Windows**, you may be prompted with a security verification. Click "More info" then "Run anyway".
+
+**On Mac**, you may receive an error message. Navigate to the "Security and Privacy" tab within System Preferences. Click the Padlock and within "General", select "Open Anyway". For some devices, this still doesn't work, in which case the only option is to run the game from the source code. Clone/download the repository. You will need a recent version of python (3.7 used for development) and the package pygame (1.9.6 used for development). Begin the game by running "main.py".
 
 ## Game instructions
+![](./images/instructions.png)
 
-![instructions](D:\Source\Gamophagy\exe_chamber\images\instructions.png)
+![](./images/intro_page.png)
 
-![intro_screenshot_new](D:\Source\Gamophagy\exe_chamber\images\intro_screenshot_new.png)
+![](./images/game_loop_page.png)
 
-<img src="D:\Source\Gamophagy\exe_chamber\images\gameplay_screenshot_new.png" alt="gameplay_screenshot_new" style="zoom: 200%;" />
-
-![high_score_screenshot_new](D:\Source\Gamophagy\exe_chamber\images\high_score_screenshot_new.png)
+![](./images/score_page.png)

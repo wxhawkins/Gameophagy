@@ -45,6 +45,7 @@ def mod(*args):
 
 
 def get_delta_length(length, angle):
+    """ Determine amount to offset box if using ellipsoid cargo. """
     angle = (angle % 90) * 2
     angle = math.radians(angle)
     delta = (abs(math.sin(angle)) * (length * 0.24))
