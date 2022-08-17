@@ -10,12 +10,12 @@ Autophagy is a process carried out inside the cells of everything from humans to
 
 ## Getting started
 
-Go to Gameophagy releases and download the most recent version for your operating system. Unzip the file and launch "Gameophagy.cmd".
+Go to Gameophagy releases and download the most recent version for your operating system. Unzip the folder and launch the "Gameophagy" file.
 
 
 **On Windows**, you may be prompted with a security verification. Click "More info" then "Run anyway".
 
-**On Mac**, you may receive an error message. Navigate to the "Security and Privacy" tab within System Preferences. Click the Padlock and within "General", select "Open Anyway". For some devices, this still doesn't work, in which case the only option is to run the game from the source code. Clone/download the repository. You will need a recent version of python (3.7 used for development) and the package pygame (1.9.6 used for development). Begin the game by running "main.py".
+**On Mac**, you may receive an error message. Navigate to the "Security and Privacy" tab within System Preferences. Click the Padlock and within "General", select "Open Anyway". For some devices, this still doesn't work, in which case the only option is to run the game from the source code. Download the "Uncompiled" version of Gameophagy from the appropriate release. You will need a recent version of python (3.7 used for development) and the package pygame (1.9.6 used for development). Begin the game by running "main.py".
 
 ## Game instructions
 ![](./images/instructions.png)
