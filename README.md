@@ -15,7 +15,11 @@ Go to Gameophagy releases and download the most recent version for your operatin
 
 **On Windows**, you may be prompted with a security verification. Click "More info" then "Run anyway".
 
-**On Mac**, you may receive an error message. Navigate to the "Security and Privacy" tab within System Preferences. Click the Padlock and within "General", select "Open Anyway". For some devices, this still doesn't work, in which case the only option is to run the game from the source code. Download the "Uncompiled" version of Gameophagy from the appropriate release. You will need a recent version of python (3.7 used for development) and the package pygame (1.9.6 used for development). Begin the game by running "main.py".
+**On Mac**, you may receive an error message. Navigate to the "Security and Privacy" tab within System Preferences. Click the Padlock and within "General", select "Open Anyway". For some devices, this still doesn't work, in which case the only option is to run the game from the source code. This is only reccomended if you are familiar with python. 
+
+#### Running Gameophagy from source code
+
+Download the "Uncompiled" version of Gameophagy from the most recent Mac release. Install a recent version of python (3.7 used for development) and the packages pygame and pyobjc. Navigate to the source folder and run main.py.
 
 ## Game instructions
 ![](./images/instructions.png)
